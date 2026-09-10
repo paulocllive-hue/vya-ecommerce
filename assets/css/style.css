@@ -1,0 +1,392 @@
+/* =========================
+   1. CONFIGURAÇÕES GERAIS
+========================= */
+
+:root {
+    --cor-principal: #ff5f7e;
+    --cor-principal-escura: #d94362;
+    --cor-secundaria: #23395b;
+    --cor-destaque: #00a896;
+    --cor-fundo: #ffffff;
+    --cor-fundo-claro: #f7f8fc;
+    --cor-texto: #252525;
+    --cor-texto-claro: #666666;
+    --cor-borda: #e4e4e4;
+
+    --largura-container: 1200px;
+    --raio: 16px;
+    --sombra: 0 12px 30px rgba(35, 57, 91, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font: inherit;
+}
+
+.container {
+    margin: 0 auto;
+    max-width: var(--largura-container);
+    padding: 0 20px;
+    width: 100%;
+}
+
+/* =========================
+   2. CABEÇALHO
+========================= */
+
+.cabecalho {
+    background-color: var(--cor-fundo);
+    border-bottom: 1px solid var(--cor-borda);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.cabecalho__conteudo {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    min-height: 76px;
+}
+
+.logo {
+    color: var(--cor-principal);
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 0.15rem;
+}
+
+.menu {
+    display: flex;
+    gap: 28px;
+}
+
+.menu a {
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.menu a:hover {
+    color: var(--cor-principal);
+}
+
+.menu-botao {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    display: none;
+    font-size: 1.8rem;
+}
+
+.carrinho-link {
+    background-color: var(--cor-secundaria);
+    border-radius: 999px;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 10px 16px;
+}
+
+#quantidade-carrinho {
+    background-color: var(--cor-principal);
+    border-radius: 50%;
+    display: inline-grid;
+    height: 24px;
+    margin-left: 5px;
+    place-items: center;
+    width: 24px;
+}
+
+/* =========================
+   3. BANNER
+========================= */
+
+.banner {
+    background:
+        linear-gradient(135deg, #fff1f4 0%, #e9fbf8 100%);
+    padding: 72px 0;
+}
+
+.banner__conteudo {
+    align-items: center;
+    display: grid;
+    gap: 50px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.banner h1 {
+    color: var(--cor-secundaria);
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    line-height: 1.05;
+    margin: 14px 0 22px;
+}
+
+.banner p {
+    color: var(--cor-texto-claro);
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    max-width: 580px;
+}
+
+.banner__imagem {
+    align-items: center;
+    aspect-ratio: 4 / 5;
+    background:
+        linear-gradient(145deg, var(--cor-principal), var(--cor-destaque));
+    border-radius: 32px 32px 120px 32px;
+    box-shadow: var(--sombra);
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    min-height: 430px;
+}
+
+.destaque {
+    color: var(--cor-principal);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+}
+
+/* =========================
+   4. BOTÕES
+========================= */
+
+.botao {
+    background-color: var(--cor-secundaria);
+    border: 0;
+    border-radius: 999px;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 700;
+    padding: 13px 22px;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.botao:hover {
+    background-color: var(--cor-principal-escura);
+    transform: translateY(-2px);
+}
+
+.botao--principal {
+    background-color: var(--cor-principal);
+}
+
+/* =========================
+   5. SEÇÕES
+========================= */
+
+.secao {
+    padding: 80px 0;
+}
+
+.secao--clara {
+    background-color: var(--cor-fundo-claro);
+}
+
+.secao__cabecalho {
+    margin-bottom: 34px;
+    text-align: center;
+}
+
+.secao h2 {
+    color: var(--cor-secundaria);
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+/* =========================
+   6. CATEGORIAS
+========================= */
+
+.categorias {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.categoria {
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    padding: 30px;
+    transition:
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.categoria:hover {
+    box-shadow: var(--sombra);
+    transform: translateY(-5px);
+}
+
+.categoria h3 {
+    color: var(--cor-secundaria);
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+}
+
+.categoria p {
+    color: var(--cor-texto-claro);
+}
+
+/* =========================
+   7. PRODUTOS
+========================= */
+
+.produtos {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.produto {
+    background-color: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+    overflow: hidden;
+}
+
+.produto__imagem {
+    align-items: center;
+    aspect-ratio: 4 / 5;
+    background-color: #e8eaf1;
+    color: var(--cor-texto-claro);
+    display: flex;
+    justify-content: center;
+}
+
+.produto__conteudo {
+    padding: 22px;
+}
+
+.produto__categoria {
+    color: var(--cor-destaque);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.produto h3 {
+    color: var(--cor-secundaria);
+    margin: 6px 0 10px;
+}
+
+.produto__preco {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+/* =========================
+   8. SOBRE E RODAPÉ
+========================= */
+
+.sobre {
+    align-items: center;
+    display: grid;
+    gap: 50px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.sobre p {
+    color: var(--cor-texto-claro);
+    font-size: 1.1rem;
+}
+
+.rodape {
+    background-color: var(--cor-secundaria);
+    color: #ffffff;
+    padding: 35px 0;
+}
+
+.rodape__conteudo {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.logo--rodape {
+    color: #ffffff;
+}
+
+/* =========================
+   9. RESPONSIVIDADE
+========================= */
+
+@media (max-width: 800px) {
+    .menu-botao {
+        display: block;
+    }
+
+    .menu {
+        background-color: var(--cor-fundo);
+        border-bottom: 1px solid var(--cor-borda);
+        display: none;
+        flex-direction: column;
+        left: 0;
+        padding: 25px 20px;
+        position: absolute;
+        top: 76px;
+        width: 100%;
+    }
+
+    .menu.menu--aberto {
+        display: flex;
+    }
+
+    .carrinho-link {
+        font-size: 0;
+    }
+
+    #quantidade-carrinho {
+        font-size: 0.9rem;
+        margin-left: 0;
+    }
+
+    .banner__conteudo,
+    .sobre {
+        grid-template-columns: 1fr;
+    }
+
+    .banner__imagem {
+        min-height: 350px;
+    }
+
+    .categorias,
+    .produtos {
+        grid-template-columns: 1fr;
+    }
+
+    .rodape__conteudo {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}

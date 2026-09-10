@@ -3,10 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="Vya: roupas fitness, moda praia, natação e esportes aquáticos."
+    >
     <link rel="stylesheet" href="assets/css/style.css">
-    <title>Vya</title>
+    <script src="assets/js/main.js" defer></script>
+    <title>Vya | Movimente - se</title>
 </head>
 <body>
+    
+    <header class="cabeçalho">
+
+        <div class="cabeçalho_conteudo">
+
+            <a class="logo" href="index.html" aria-label="pagina inicial da vya">
+
+                VYA
+
+            </a>
+
+            <button class="menu-botao"
+            id="menu-botal"
+            type="button"
+            aria-label="Abrir Menu"
+            aria-expanded="false"
+            aria-controls="menu-principal">
+
+            ☰
+
+            </button>
+
+            <nav
+                class="menu"
+                id="menu-principal"
+                aria-label="Navegação principal"
+            >
+                <a href="index.html">Início</a>
+                <a href="pages/produtos.html">Produtos</a>
+                <a href="#categorias">Categorias</a>
+                <a href="#sobre">Sobre</a>
+            </nav>
+
+            <a class="carrinho-link" href="pages/carrinho.html">
+                Carrinho
+                <span id="quantidade-carrinho">0</span>
+            </a>
+
+        </div>
+
+    </header>
+
+    <main>
+        <section class="banner">
+            <div class="container banner__conteudo">
+                <div class="banner__texto">
+                    <span class="destaque">Nova coleção Vya</span>
+
+                    <h1>Movimento, conforto e estilo para todos.</h1>
+
+                    <p>
+                        Roupas fitness, moda praia e peças para acompanhar
+                        todos os seus movimentos.
+                    </p>
+
+                    <a class="botao botao--principal" href="pages/produtos.html">
+                        Conhecer produtos
+                    </a>
+                </div>
+
+                <div class="banner__imagem" aria-hidden="true">
+                    <span>Imagem da coleção Vya</span>
+                </div>
+            </div>
+
+            </section>
+
+        <section class="secao" id="categorias">
+            <div class="container">
+                <div class="secao__cabecalho">
+                    <span class="destaque">Escolha seu estilo</span>
+                    <h2>Categorias</h2>
+                </div>
+
+                <div class="categorias">
+                    <a class="categoria" href="pages/produtos.html?categoria=fitness">
+                        <h3>Fitness</h3>
+                        <p>Conforto para treinar e se movimentar.</p>
+                    </a>
+
+                    <a class="categoria" href="pages/produtos.html?categoria=praia">
+                        <h3>Moda praia</h3>
+                        <p>Leveza e personalidade para aproveitar o verão.</p>
+                    </a>
+
+                    <a class="categoria" href="pages/produtos.html?categoria=natacao">
+                        <h3>Natação</h3>
+                        <p>Peças práticas para piscina e esportes aquáticos.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="secao secao--clara">
+            <div class="container">
+                <div class="secao__cabecalho">
+                    <span class="destaque">Seleção Vya</span>
+                    <h2>Produtos em destaque</h2>
+                </div>
+
+                <div class="produtos">
+                    <article class="produto">
+                        <div class="produto__imagem">Imagem do produto</div>
+
+                        <div class="produto__conteudo">
+                            <span class="produto__categoria">Fitness</span>
+                            <h3>Conjunto Fitness Vya</h3>
+                            <p class="produto__preco">R$ 149,90</p>
+
+                            <button
+                                class="botao adicionar-carrinho"
+                                type="button"
+                                data-id="1"
+                                data-nome="Conjunto Fitness Vya"
+                                data-preco="149.90"
+                            >
+                                Adicionar ao carrinho
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="produto">
+                        <div class="produto__imagem">Imagem do produto</div>
+
+                        <div class="produto__conteudo">
+                            <span class="produto__categoria">Moda praia</span>
+                            <h3>Biquíni Vya Solar</h3>
+                            <p class="produto__preco">R$ 119,90</p>
+
+                            <button
+                                class="botao adicionar-carrinho"
+                                type="button"
+                                data-id="2"
+                                data-nome="Biquíni Vya Solar"
+                                data-preco="119.90"
+                            >
+                                Adicionar ao carrinho
+                            </button>
+                        </div>
+                    </article>
+
+                    <article class="produto">
+                        <div class="produto__imagem">Imagem do produto</div>
+
+                        <div class="produto__conteudo">
+                            <span class="produto__categoria">Natação</span>
+                            <h3>Maiô Vya Movimento</h3>
+                            <p class="produto__preco">R$ 139,90</p>
+
+                            <button
+                                class="botao adicionar-carrinho"
+                                type="button"
+                                data-id="3"
+                                data-nome="Maiô Vya Movimento"
+                                data-preco="139.90"
+                            >
+                                Adicionar ao carrinho
+                            </button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="secao" id="sobre">
+            <div class="container sobre">
+                <div>
+                    <span class="destaque">Sobre a marca</span>
+                    <h2>A Vya acompanha o seu movimento</h2>
+                </div>
+
+                <p>
+                    Uma marca alegre, atual e inclusiva, criada para pessoas
+                    que valorizam conforto, liberdade e personalidade.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container rodape__conteudo">
+            <a class="logo logo--rodape" href="index.html">VYA</a>
+
+            <p>
+                &copy; <span id="ano-atual"></span> Vya.
+                Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
     
 </body>
 </html>
