@@ -1,6 +1,11 @@
 /* =========================
    1. CONFIGURAÇÕES GERAIS
 ========================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 :root {
     --cor-principal: #ff5f7e;
@@ -18,11 +23,7 @@
     --sombra: 0 12px 30px rgba(35, 57, 91, 0.1);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+
 
 html {
     scroll-behavior: smooth;
@@ -61,39 +62,51 @@ button {
 ========================= */
 
 .cabecalho {
-    background-color: var(--cor-fundo);
+    background-color: #f3f5f4;
     border-bottom: 1px solid var(--cor-borda);
-    position: sticky;
+    
     top: 0;
     z-index: 1000;
 }
 
-.cabecalho__conteudo {
+.cabecalho-conteudo {
     align-items: center;
     display: flex;
     justify-content: space-between;
     min-height: 76px;
 }
 
-.logo {
-    color: var(--cor-principal);
-    font-size: 1.8rem;
-    font-weight: 800;
-    letter-spacing: 0.15rem;
+.logo { /* CHAMANDO O LINK */
+    
+    display: flex;
+    /*display: inline-block;*/
+}
+.logo-cabeca{ /* EDITANDO A LOGO*/
+
+    display: block;
+    width: 140px;
+    /*height: auto;*/
 }
 
 .menu {
+    align-items: center;
     display: flex;
-    gap: 28px;
+    gap: 30px;
 }
 
 .menu a {
-    font-weight: 600;
+    align-items: center;
+
+    font-weight: 700;
     transition: color 0.2s ease;
+    text-decoration: none;
+
+    margin-left: auto;
+    
 }
 
 .menu a:hover {
-    color: var(--cor-principal);
+    color: #6FC3A2;
 }
 
 .menu-botao {
@@ -105,15 +118,20 @@ button {
 }
 
 .carrinho-link {
+
+    
+
     background-color: var(--cor-secundaria);
-    border-radius: 999px;
+    border-radius: 50px;
     color: #ffffff;
     font-weight: 700;
+    margin: 0 50px 0 0;
     padding: 10px 16px;
+
 }
 
 #quantidade-carrinho {
-    background-color: var(--cor-principal);
+    background-color: #6FC3A2;
     border-radius: 50%;
     display: inline-grid;
     height: 24px;
@@ -157,7 +175,7 @@ button {
     align-items: center;
     aspect-ratio: 4 / 5;
     background:
-        linear-gradient(145deg, var(--cor-principal), var(--cor-destaque));
+        linear-gradient(145deg, #a8c9B0, #0b1f3a);
     border-radius: 32px 32px 120px 32px;
     box-shadow: var(--sombra);
     color: #ffffff;
@@ -167,7 +185,7 @@ button {
 }
 
 .destaque {
-    color: var(--cor-principal);
+    color: /*var(--cor-principal)*/#a8c9B0;
     font-size: 0.85rem;
     font-weight: 800;
     letter-spacing: 0.1rem;
@@ -321,8 +339,8 @@ button {
 }
 
 .rodape {
-    background-color: var(--cor-secundaria);
-    color: #ffffff;
+    background-color: rgb(193, 227, 228);
+    color: #000000;
     padding: 35px 0;
 }
 
@@ -332,7 +350,7 @@ button {
     justify-content: space-between;
 }
 
-.logo--rodape {
+.logo_rodape {
     color: #ffffff;
 }
 
@@ -355,6 +373,9 @@ button {
         position: absolute;
         top: 76px;
         width: 100%;
+    }
+    .logo__imagem {
+        width: 110px;
     }
 
     .menu.menu--aberto {
