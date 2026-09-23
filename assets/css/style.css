@@ -172,16 +172,98 @@ button {
 }
 
 .banner__imagem {
-    align-items: center;
+      /* Mantém as mesmas proporções atuais */
     aspect-ratio: 4 / 5;
-    background:
-        linear-gradient(145deg, #a8c9B0, #0b1f3a);
+
+    /* Formato do banner */
     border-radius: 32px 32px 120px 32px;
+
+    /* Sombra */
     box-shadow: var(--sombra);
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
+
+    /* Limita o tamanho vertical */
+    max-height: 560px;
     min-height: 430px;
+
+    /* Necessário para posicionar a imagem e o degradê */
+    overflow: hidden;
+    position: relative;
+
+    width: 100%;
+}
+/* Imagem dentro do banner */
+.banner__imagem img {
+    display: block;
+    height: 100%;
+
+    /*
+        Faz a imagem preencher todo o banner
+        sem ficar deformada.
+    */
+    object-fit: cover;
+
+    /*
+        Centraliza a parte visível da fotografia.
+    */
+    object-position: center;
+
+    /*
+        Cria uma pequena animação de aproximação.
+    */
+    transition: transform 0.4s ease;
+
+    width: 100%;
+}
+
+/* Camada de degradê colocada por cima da imagem */
+.banner__imagem::after {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(111, 195, 162, 0.35) 0%,
+            rgba(32, 51, 84, 0.65) 100%
+        );
+
+    /*
+        Cria um elemento vazio que cobre
+        toda a imagem.
+    */
+    content: "";
+
+    /*
+        Faz o degradê ocupar todo o banner.
+        É equivalente a:
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    */
+    inset: 0;
+
+    opacity: 1;
+    pointer-events: none;
+    position: absolute;
+
+    /*
+        Suaviza o desaparecimento do degradê.
+    */
+    transition: opacity 0.5s ease;
+}
+
+/* Remove o degradê quando o mouse passa sobre a imagem */
+.banner__imagem:hover::after {
+    opacity: 0;
+}
+
+/* Também funciona ao selecionar com o teclado */
+.banner__imagem:focus::after {
+    opacity: 0;
+}
+
+/* Aumenta discretamente a imagem ao passar o mouse */
+.banner__imagem:hover img,
+.banner__imagem:focus img {
+    transform: scale(1.03);
 }
 
 .destaque {
@@ -216,7 +298,7 @@ button {
 }
 
 .botao--principal {
-    background-color: var(--cor-principal);
+    background-color: #a8c9B0;
 }
 
 /* =========================
