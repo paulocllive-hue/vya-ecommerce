@@ -279,7 +279,7 @@ button {
 ========================= */
 
 .botao {
-    background-color: var(--cor-secundaria);
+    background-color: #a8c9B0;
     border: 0;
     border-radius: 999px;
     color: #ffffff;
@@ -293,7 +293,7 @@ button {
 }
 
 .botao:hover {
-    background-color: var(--cor-principal-escura);
+    background-color: var(--cor-secundaria);
     transform: translateY(-2px);
 }
 
@@ -408,32 +408,57 @@ button {
    8. SOBRE E RODAPÉ
 ========================= */
 
-.sobre {
-    align-items: center;
-    display: grid;
-    gap: 50px;
-    grid-template-columns: 1fr 1fr;
-}
-
-.sobre p {
-    color: var(--cor-texto-claro);
-    font-size: 1.1rem;
-}
-
 .rodape {
-    background-color: #A8C9B0;
-    color: #000000;
-    padding: 35px 0;
+  background-color: #b5d2bf;
+  padding: 48px 6% 24px;
 }
 
 .rodape__conteudo {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 32px;
+  align-items: start;
+  text-align: left;
 }
 
 .logo_rodape {
-    color: #ffffff;
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: auto;
+}
+
+.rodape-marca p {
+
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+
+
+}
+
+.rodape-coluna h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  color: #062a4a;
+}
+
+.rodape-coluna p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.rodape-direitos {
+  margin: 48px 0 0;
+  text-align: center;
+  font-size: 14px;
+}
+
+.rodape-direito {
+    
+  margin: 48px 0 0;
+  text-align: center;
+  font-size: 14px;
 }
 
 /* =========================
@@ -492,4 +517,21 @@ button {
         gap: 15px;
         text-align: center;
     }
+}
+
+@media (max-width: 768px) {
+  .rodape__conteudo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rodape-marca {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .rodape__conteudo {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
 }
