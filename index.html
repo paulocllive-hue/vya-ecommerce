@@ -9,6 +9,7 @@
     >
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="assets/js/main.js" defer></script>
+
     <title>Vya | Movimente - se</title>
 </head>
 <body>
@@ -19,7 +20,7 @@
 
             <a class="logo-cabeca" href="index.html" aria-label="pagina inicial da vya">
 
-                <img class="logo_cabeca" src="images/logo/Vya vetorizada formato SVG.svg">
+                <img class="logo_img" src="images/logo/Vya vetorizada formato SVG.svg">
 
             </a>
 
@@ -39,7 +40,7 @@
                 id="menu-principal"
                 aria-label="Navegacao principal"
             >
-                <a href="index.html">Início</a>
+                <a href="index.html" aria-current="page">Início</a>
                 <a href="pages/produtos.html">Produtos</a>
                 <a href="#categorias">Categorias</a>
                 <a href="#sobre">Sobre</a>
@@ -47,7 +48,11 @@
 
             <a class="carrinho-link" href="pages/carrinho.html">
                 Carrinho
-                <span id="quantidade-carrinho">0</span>
+                <span id="quantidade-carrinho">
+                    
+                    0
+
+                </span>
             </a>
 
         </div>
@@ -201,26 +206,47 @@
 
     <footer class="rodape">
         <div class="container rodape__conteudo">
-            <a class="logo_rodape" href="index.html">
+            <a  class="logo_rodape" 
+                href="index.html"
+                aria-label="Página inicial Vya">
+
                 <img src="images/logo/Vya vetorizada formato SVG.svg">
+
+                
             </a>
+               <p>
+                Movimento, conforto e liberdade para você
+                se sentir bem em todos os momentos.
+                </p> 
+            
+            <div class="rodape-coluna">
+                <h2>Ajuda</h2>
+                <p>Em breve, informações sobre compras, entregas e trocas.</p>
+                    <a href="#">Fale conosco</a>
+                    <a href="#">Entregas</a>
+                    <a href="#">Trocas e devoluções</a>
+                    <a href="#">Formas de pagamento</a>
+             </div>
 
             <div class="rodape-coluna">
-      <h2>Ajuda</h2>
-      <p>Em breve, informações sobre compras, entregas e trocas.</p>
-    </div>
+                <h2>Redes sociais</h2>
+                <p>Em breve, acompanhe a VYA nas redes sociais.</p>
+            </div>
 
-    <div class="rodape-coluna">
-      <h2>Redes sociais</h2>
-      <p>Em breve, acompanhe a VYA nas redes sociais.</p>
-    </div>
+            <div class="rodape-coluna">
+                <h2>Institucional</h2>
+                <p>Em breve, conheça mais sobre a VYA.</p>
+            </div>
 
-    <div class="rodape-coluna">
-      <h2>Institucional</h2>
-      <p>Em breve, conheça mais sobre a VYA.</p>
-    </div>
+            <div class="rodape-coluna">
+                <h2>Minha conta</h2>
+
+                <a href="pages/login.html">Entrar</a>
+                <a href="pages/cadastro.html">Criar conta</a>
+                <a href="pages/carrinho.html">Meu carrinho</a>
+            </div>
     
-            <p class="rodape-direito">
+            <p class="rodape-direitos">
                 &copy; <span id="ano-atual"></span> 2026 VYA. Todos os direitos reservados.
             </p>
         

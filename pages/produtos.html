@@ -11,52 +11,80 @@
         a pasta assets.
     -->
 
-    <link rel="stylesheet" href="../assets/css/produtos.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/main.js" defer></script>
+
+        <link rel="stylesheet" href="../assets/css/style.css">
+        <link rel="stylesheet" href="../assets/css/produtos.css">
+
+        <script src="../assets/js/main.js" defer></script>
+        <script src="../assets/js/produtos.js" defer>
+            
+        </script>
+
 </head>
 <body>
-    <header class="cabecalho">
-    <div class="container cabecalho-conteudo">
+        <header class="cabecalho">
+            <div class="container cabecalho-conteudo">
 
-        <a
-            class="logo-cabeca"
-            href="../index.html"
-            aria-label="Página inicial da Vya"
-        >
-            <img
-                class="logo_cabeca"
-                src="../images/logo/Vya vetorizada formato SVG.svg"
-                alt="Vya"
-            >
-        </a>
+                <a
+                    class="logo-cabeca"
+                    href="../index.html"
+                    aria-label="Página inicial da Vya"
+                >
+                    <img
+                        class="logo-imagem"
+                        src="../images/logo/Vya vetorizada formato SVG.svg"
+                        alt="Vya"
+                    >
+                </a>
 
-        <button
-            class="menu-botao"
-            id="menu-botao"
-            type="button"
-            aria-label="Abrir menu"
-            aria-expanded="false"
-            aria-controls="menu-principal"
-        >
-            ☰
-        </button>
+                <button
+                    class="menu-botao"
+                    id="menu-botao"
+                    type="button"
+                    aria-label="Abrir menu"
+                    aria-expanded="false"
+                    aria-controls="menu-principal"
+                >
+                    ☰
+                </button>
 
-        <nav
-            class="menu"
-            id="menu-principal"
-            aria-label="Navegação principal"
-        >
-            <a href="../index.html">Início</a>
-            <a href="produtos.html">Produtos</a>
-            <a href="../index.html#categorias">Categorias</a>
-            <a href="../index.html#sobre">Sobre</a>
-        </nav>
+                <nav
+                    class="menu"
+                    id="menu-principal"
+                    aria-label="Navegação principal"
+                >
+                    <a href="../index.html">
+                        Início
+                    </a>
 
-        <a class="carrinho-link" href="carrinho.html">
-            Carrinho
-            <span id="quantidade-carrinho">0</span>
-        </a>
-    </div>
-</header>
+                    <a href="produtos.html"
+                        aria-current="page">
+                        Produtos
+                    </a>
+
+                    <a href="../index.html#categorias">
+                        Categorias
+                    </a>
+
+                    <a href="../index.html#sobre">
+                        Sobre
+                    </a>
+                </nav>
+
+                <a
+                    class="carrinho-link"
+                    href="carrinho.html"
+                >
+                    Carrinho
+
+                    <span id="quantidade-carrinho">
+                        0
+                    </span>
+                </a>
+            </div>
+    </header>
 
     <main class="pagina-produtos">
 
@@ -263,58 +291,59 @@
                     </div>
 
         <footer class="rodape">
-    <div class="container rodape__conteudo">
+            <div class="container rodape__conteudo">
 
-        <div class="rodape-marca">
-            <a
-                class="logo_rodape"
-                href="../index.html"
-                aria-label="Página inicial da Vya"
-            >
-                <img
-                    src="../images/logo/Vya vetorizada formato SVG.svg"
-                    alt="Vya"
-                >
-            </a>
+                <div class="rodape-marca">
+                    <a
+                        class="logo-rodape"
+                        href="../index.html"
+                        aria-label="Página inicial da Vya"
+                    >
+                        <img
+                            src="../images/logo/Vya vetorizada formato SVG.svg"
+                            alt="Vya"
+                        >
+                    </a>
 
-            <p>
-                Movimento, conforto e liberdade para você
-                se sentir bem.
+                    <p>
+                        Movimento, conforto e liberdade para você
+                        se sentir bem em todos os momentos.
+                    </p>
+                </div>
+
+                <div class="rodape-coluna">
+                    <h2>Navegação</h2>
+
+                    <a href="../index.html">Início</a>
+                    <a href="produtos.html">Produtos</a>
+                    <a href="../index.html#categorias">Categorias</a>
+                    <a href="../index.html#sobre">Sobre a Vya</a>
+                </div>
+
+                <div class="rodape-coluna">
+                    <h2>Ajuda</h2>
+
+                    <a href="#">Fale conosco</a>
+                    <a href="#">Entregas</a>
+                    <a href="#">Trocas e devoluções</a>
+                    <a href="#">Formas de pagamento</a>
+                </div>
+
+                <div class="rodape-coluna">
+                    <h2>Minha conta</h2>
+
+                    <a href="login.html">Entrar</a>
+                    <a href="cadastro.html">Criar conta</a>
+                    <a href="carrinho.html">Meu carrinho</a>
+                </div>
+            </div>
+
+            <p class="rodape-direitos">
+                &copy;
+                <span id="ano-atual"></span>
+                Vya. Todos os direitos reservados.
             </p>
-        </div>
-
-        <div class="rodape-coluna">
-            <h2>Ajuda</h2>
-
-            <p>
-                Em breve, informações sobre compras,
-                entregas e trocas.
-            </p>
-        </div>
-
-        <div class="rodape-coluna">
-            <h2>Redes sociais</h2>
-
-            <p>
-                Em breve, acompanhe a Vya nas redes sociais.
-            </p>
-        </div>
-
-        <div class="rodape-coluna">
-            <h2>Institucional</h2>
-
-            <p>
-                Em breve, conheça mais sobre a Vya.
-            </p>
-        </div>
-
-    </div>
-
-    <p class="rodape-direitos">
-        &copy; <span id="ano-atual"></span>
-        Vya. Todos os direitos reservados.
-    </p>
-</footer>
+    </footer>
 
 </body>
 </html>
