@@ -18,36 +18,39 @@ const quantidadeCarrinho = document.querySelector(
     "#quantidade-carrinho"
 );
 
-const anoAtual = document.querySelector(
-    "#ano-atual"
+const anoAtual = document.querySelector("#ano-atual");
+
+/*const bannerImagem = document.querySelector(
+    "#banner-imagem"
 );
 
 
 /*
     ========================================
-    2. RECUPERAR O CARRINHO SALVO
+    2. RECUPERAR O CARRINHO
     ========================================
 */
 
-/*
-    let permite alterar o conteúdo do carrinho
-    durante a utilização da página.
-*/
+let carrinho = [];
 
-let carrinho = JSON.parse(
-    localStorage.getItem("carrinhoVya")
-) || [];
+try {
+    carrinho = JSON.parse(
+        localStorage.getItem("carrinhoVya")
+    ) || [];
+} catch (erro) {
+    carrinho = [];
+
+    console.error(
+        "Não foi possível recuperar o carrinho:",
+        erro
+    );
+}
 
 
 /*
     ========================================
     3. MENU DO CELULAR
     ========================================
-*/
-
-/*
-    Só configura o menu se o botão e o menu
-    existirem na página atual.
 */
 
 if (botaoMenu && menuPrincipal) {
@@ -63,13 +66,8 @@ if (botaoMenu && menuPrincipal) {
         );
     });
 
-
-    /*
-        Fecha o menu quando o usuário
-        seleciona alguma opção.
-    */
-
-    const linksMenu = menuPrincipal.querySelectorAll("a");
+    const linksMenu =
+        menuPrincipal.querySelectorAll("a");
 
     linksMenu.forEach((link) => {
         link.addEventListener("click", () => {
@@ -88,25 +86,17 @@ if (botaoMenu && menuPrincipal) {
 
 /*
     ========================================
-    4. ATUALIZAR CONTADOR DO CARRINHO
+    4. CONTADOR DO CARRINHO
     ========================================
 */
 
 function atualizarContadorCarrinho() {
-    /*
-        Soma a quantidade de todos os produtos.
-    */
-
     const quantidadeTotal = carrinho.reduce(
         (total, produto) => {
             return total + produto.quantidade;
         },
         0
     );
-
-    /*
-        Só altera o elemento se ele existir.
-    */
 
     if (quantidadeCarrinho) {
         quantidadeCarrinho.textContent =
@@ -122,11 +112,6 @@ function atualizarContadorCarrinho() {
 */
 
 function salvarCarrinho() {
-    /*
-        Transforma o array em texto e salva
-        no navegador.
-    */
-
     localStorage.setItem(
         "carrinhoVya",
         JSON.stringify(carrinho)
@@ -138,22 +123,12 @@ function salvarCarrinho() {
 
 /*
     ========================================
-    6. ADICIONAR UM PRODUTO
+    6. ADICIONAR PRODUTO
     ========================================
 */
 
 function adicionarProduto(evento) {
-    /*
-        currentTarget identifica exatamente
-        o botão que foi clicado.
-    */
-
     const botao = evento.currentTarget;
-
-    /*
-        Cria um objeto com os dados guardados
-        nos atributos data-* do botão.
-    */
 
     const produto = {
         id: Number(botao.dataset.id),
@@ -162,21 +137,11 @@ function adicionarProduto(evento) {
         quantidade: 1
     };
 
-    /*
-        Verifica se o produto já está
-        dentro do carrinho.
-    */
-
     const produtoExistente = carrinho.find(
         (item) => {
             return item.id === produto.id;
         }
     );
-
-    /*
-        Se já existe, aumenta a quantidade.
-        Se não existe, adiciona o produto.
-    */
 
     if (produtoExistente) {
         produtoExistente.quantidade += 1;
@@ -184,18 +149,10 @@ function adicionarProduto(evento) {
         carrinho.push(produto);
     }
 
-    /*
-        Salva o novo estado do carrinho.
-    */
-
     salvarCarrinho();
 
-    /*
-        Mostra uma confirmação temporária
-        dentro do botão.
-    */
-
-    const textoOriginal = botao.textContent;
+    const textoOriginal =
+        botao.textContent.trim();
 
     botao.textContent = "Produto adicionado";
     botao.disabled = true;
@@ -209,13 +166,8 @@ function adicionarProduto(evento) {
 
 /*
     ========================================
-    7. CONECTAR OS BOTÕES DOS PRODUTOS
+    7. BOTÕES DOS PRODUTOS
     ========================================
-*/
-
-/*
-    Adiciona um evento em cada botão que possui
-    a classe adicionar-carrinho.
 */
 
 botoesCarrinho.forEach((botao) => {
@@ -228,7 +180,7 @@ botoesCarrinho.forEach((botao) => {
 
 /*
     ========================================
-    8. ANO AUTOMÁTICO DO RODAPÉ
+    8. ANO DO RODAPÉ
     ========================================
 */
 
@@ -245,3 +197,69 @@ if (anoAtual) {
 */
 
 atualizarContadorCarrinho();
+
+
+/*
+    ========================================
+    10. TROCA AUTOMÁTICA DO BANNER
+    ========================================
+*/
+
+const bannerImagem = document.querySelector(
+    "#banner-imagem"
+);
+
+const imagensBanner = [
+    "images/banners/banner-01.png",
+    "images/banners/banner-02.png",
+    "images/banners/banner-03.png",
+    "images/banners/banner-04.png",
+    "images/banners/banner-05.png",
+    "images/banners/banner-06.png",
+    "images/banners/banner-07.png",
+    "images/banners/banner-08.png",
+    "images/banners/banner-09.png",
+    "images/banners/banner-10.png",
+    "images/banners/banner-11.png",
+    "images/banners/banner-12.png",
+    "images/banners/banner-13.png",
+    "images/banners/banner-14.png",
+    "images/banners/banner-15.png",
+    "images/banners/banner-16.png",
+    "images/banners/banner-17.png",
+    "images/banners/banner-18.png",
+    "images/banners/banner-19.png",
+    "images/banners/banner-20.png",
+    "images/banners/banner-21.png",
+    "images/banners/banner-22.png",
+    "images/banners/banner-23.png",
+    "images/banners/banner-24.png",
+    "images/banners/banner-25.png",
+    "images/banners/banner-26.png"
+];
+
+let bannerAtual = 0;
+
+if (bannerImagem) {
+    console.log("Banner encontrado:", bannerImagem);
+
+    setInterval(() => {
+        bannerAtual++;
+
+        if (bannerAtual >= imagensBanner.length) {
+            bannerAtual = 0;
+        }
+
+        console.log(
+            "Trocando para:",
+            imagensBanner[bannerAtual]
+        );
+
+        bannerImagem.src =
+            imagensBanner[bannerAtual];
+    }, 3000);
+} else {
+    console.error(
+        "ERRO: o elemento #banner-imagem não foi encontrado."
+    );
+}

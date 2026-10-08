@@ -265,25 +265,25 @@ button {
 /* Imagem dentro do banner */
 .banner__imagem img {
     display: block;
-    height: 100%;
-
-    /*
-        Faz a imagem preencher todo o banner
-        sem ficar deformada.
-    */
-    object-fit: cover;
-
-    /*
-        Centraliza a parte visível da fotografia.
-    */
-    object-position: center;
-
-    /*
-        Cria uma pequena animação de aproximação.
-    */
-    transition: transform 0.4s ease;
-
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 1;
+
+    transition:
+        opacity 0.5s ease,
+        transform 0.6s ease;
+}
+
+.banner__imagem img.banner-trocando {
+    opacity: 0;
+}
+
+/* Pequeno efeito ao passar o mouse. */
+
+.banner__imagem:hover img {
+    transform: scale(1.03);
 }
 
 /* Camada de degradê colocada por cima da imagem */
@@ -479,104 +479,131 @@ button {
    8. SOBRE E RODAPÉ
 ========================= */
 
+/*
+    ========================================
+    RODAPÉ
+    ========================================
+*/
+
 .rodape {
-  background-color: var(--cor-rodape);
-  padding: 48px 0 24px;
+    background-color: var(--cor-rodape);
+    color: #062a4a;
+    padding: 48px 0 24px;
 }
 
 .rodape__conteudo {
-  align-items: start;
-  display: grid;
-  gap: 32px;
-  grid-template-columns: 2fr repeat(3, 1fr);
-  text-align: left;
+    align-items: start;
+    display: grid;
+    gap: 48px;
+    grid-template-columns: 1.7fr 1fr 1fr 1fr;
+    text-align: left;
 }
 
-.logo_rodape {
-  display: block;
-  width: 220px;
-  max-width: 100%;
-  height: auto;
-}
-
-/* 
-=========================
-
-COLUNA DA MARCA. 
-
-=========================
+/*
+    Coluna da marca
 */
 
-/*.rodape-marca {
-    max-width: 330px;				  
-						
-}*/
-
-
+.rodape-marca {
+    max-width: 390px;
+}
 
 .logo-rodape {
     display: block;
-					  
-    margin-bottom: 16px;
-    width: 190px;
+    margin-bottom: 28px;
+    width: 170px;
 }
 
-.logo-rodape img{
+.logo-rodape img {
     display: block;
     height: auto;
     width: 100%;
 }
 
 .rodape-marca p {
-
     color: #334a54;
     line-height: 1.6;
     margin: 0;
-  /*margin: 0;
-  line-height: 1.5;
-  text-align: center;*/
+    max-width: 380px;
 }
 
-/* Colunas de links e informações. */
+/*
+    Colunas de links
+*/
 
 .rodape-coluna {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    gap: 10px;
 }
 
 .rodape-coluna h2 {
     color: #062a4a;
     font-size: 18px;
-    margin: 0 0 8px;
+    margin: 0 0 10px;
 }
 
-.rodape-coluna p {
-    color: #334a54;
-    line-height: 1.6;
-    margin: 0;
+.rodape-coluna a {
+    color: #162f3a;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-/* Direitos autorais. */
+.rodape-coluna a:hover {
+    color: var(--cor-destaque);
+}
+
+/*
+    Direitos autorais
+*/
 
 .rodape-direitos {
     border-top: 1px solid rgba(6, 42, 74, 0.2);
-    color: #334a54;
-    font-size: 14px;
-    margin: 42px auto 0;
-    max-width: var(--largura-container);
-    padding: 22px 24px 0;
+    margin-top: 42px;
+    padding-top: 22px;
     text-align: center;
- /* margin: 48px 0 0;
-  text-align: center;
-  font-size: 14px;*/
 }
 
-.rodape-direito {
-    
-  margin: 48px 0 0;
-  text-align: center;
-  font-size: 14px;
+.rodape-direitos p {
+    color: #334a54;
+    font-size: 14px;
+    margin: 0;
+}
+
+/*
+    Tablet
+*/
+
+@media (max-width: 900px) {
+    .rodape__conteudo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/*
+    Celular
+*/
+
+@media (max-width: 600px) {
+    .rodape {
+        padding-top: 40px;
+    }
+
+    .rodape__conteudo {
+        gap: 32px;
+        grid-template-columns: 1fr;
+    }
+
+    .rodape-marca {
+        max-width: 100%;
+    }
+
+    .logo-rodape {
+        width: 150px;
+    }
+
+    .rodape-direitos {
+        margin-top: 35px;
+    }
 }
 
 /* =========================

@@ -78,13 +78,14 @@
                     </a>
                 </div>
 
-                <div class="banner__imagem" aria-hidden="true">
+                <div class="banner__imagem">
                     
                     <img
-                        src="images/banners/produtos/Duas peças de roupa recortadas.png"
-                        alt="Modelo utilizando roupas da coleção Vya"
-    >
-                    <span>Imagem da coleção Vya</span>
+                        id="banner-imagem"
+                        src="images/banners/banner-01.png"
+                        alt="Modelo utilizando roupas da coleção Vya">
+
+
                     
                 </div>
             </div>
@@ -212,53 +213,65 @@
         </section>
     </main>
 
-    <footer class="rodape">
-        <div class="container rodape__conteudo">
-            <a  class="logo_rodape" 
-                href="index.html"
-                aria-label="Página inicial Vya">
+        <footer class="rodape">
 
-                <img src="images/logo/Vya vetorizada formato SVG.svg">
+            <div class="container rodape__conteudo">
 
-                
-            </a>
-               <p>
-                Movimento, conforto e liberdade para você
-                se sentir bem em todos os momentos.
-                </p> 
-            
-            <div class="rodape-coluna">
-                <h2>Ajuda</h2>
-                <p>Em breve, informações sobre compras, entregas e trocas.</p>
+                <div class="rodape-marca">
+                    <a
+                        class="logo-rodape"
+                        href="index.html"
+                        aria-label="Página inicial da Vya"
+                    >
+                        <img
+                            src="images/logo/Vya vetorizada formato SVG.svg"
+                            alt="Logotipo Vya"
+                        >
+                    </a>
+
+                    <p>
+                        Movimento, conforto e liberdade para você
+                        se sentir bem em todos os momentos.
+                    </p>
+                </div>
+
+                <div class="rodape-coluna">
+                    <h2>Navegação</h2>
+
+                    <a href="index.html">Início</a>
+                    <a href="pages/produtos.html">Produtos</a>
+                    <a href="#categorias">Categorias</a>
+                    <a href="#sobre">Sobre a Vya</a>
+                </div>
+
+                <div class="rodape-coluna">
+                    <h2>Ajuda</h2>
+
                     <a href="#">Fale conosco</a>
                     <a href="#">Entregas</a>
                     <a href="#">Trocas e devoluções</a>
                     <a href="#">Formas de pagamento</a>
-             </div>
+                </div>
 
-            <div class="rodape-coluna">
-                <h2>Redes sociais</h2>
-                <p>Em breve, acompanhe a VYA nas redes sociais.</p>
+                <div class="rodape-coluna">
+                    <h2>Minha conta</h2>
+
+                    <a href="pages/login.html">Entrar</a>
+                    <a href="pages/cadastro.html">Criar conta</a>
+                    <a href="pages/carrinho.html">Meu carrinho</a>
+                </div>
+
             </div>
 
-            <div class="rodape-coluna">
-                <h2>Institucional</h2>
-                <p>Em breve, conheça mais sobre a VYA.</p>
+            <div class="container rodape-direitos">
+                <p>
+                    &copy;
+                    <span id="ano-atual"></span>
+                    Vya. Todos os direitos reservados.
+                </p>
             </div>
 
-            <div class="rodape-coluna">
-                <h2>Minha conta</h2>
-
-                <a href="pages/login.html">Entrar</a>
-                <a href="pages/cadastro.html">Criar conta</a>
-                <a href="pages/carrinho.html">Meu carrinho</a>
-            </div>
-    
-            <p class="rodape-direitos">
-                &copy; <span id="ano-atual"></span> 2026 VYA. Todos os direitos reservados.
-            </p>
-        
-    </footer>
+        </footer>
     
 </body>
 </html>
