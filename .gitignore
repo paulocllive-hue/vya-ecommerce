@@ -1,0 +1,25 @@
+# Dependências instaladas pelo npm
+node_modules/
+
+# Variáveis de ambiente e informações secretas
+.env
+.env.*
+!.env.example
+
+# Arquivos de log
+*.log
+logs/
+
+# Resultados de testes
+coverage/
+
+# Arquivos gerados para publicação
+dist/
+build/
+
+# Configurações pessoais de editores
+.vscode/
+
+# Arquivos criados pelo sistema operacional
+.DS_Store
+Thumbs.db
