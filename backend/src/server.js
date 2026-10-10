@@ -1,28 +1,87 @@
-import "dotenv/config";
 import app from "./app.js";
 
-const porta = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || "127.0.0.1";
+import {
+    pool,
+    testarConexaoBanco
+} from "./config/database.js";
 
-const servidor = app.listen(porta, host, () => {
-    console.log(
-        `Servidor VYA funcionando em http://${host}:${porta}`
-    );
-});
+import { env } from "./config/env.js";
 
-function encerrarServidor(sinal) {
-    console.log(`\nSinal ${sinal} recebido. Encerrando servidor...`);
+/*
+    Inicializa todos os recursos necessários
+    para o funcionamento da API.
+*/
+async function iniciarServidor() {
+    try {
+        /*
+            Antes de abrir a API, confirma se
+            o MariaDB está disponível.
+        */
+        const banco = await testarConexaoBanco();
 
-    servidor.close(() => {
-        console.log("Servidor encerrado corretamente.");
-        process.exit(0);
-    });
+        console.log(
+            `Banco conectado: ${banco.banco}`
+        );
+
+        /*
+            Abre o servidor HTTP somente depois
+            que o banco responder corretamente.
+        */
+        const servidor = app.listen(
+            env.PORT,
+            env.HOST,
+            () => {
+                console.log(
+                    `API VYA rodando em http://${env.HOST}:${env.PORT}`
+                );
+            }
+        );
+
+        /*
+            Encerra o servidor e as conexões
+            corretamente quando pressionamos Ctrl+C.
+        */
+        async function encerrarServidor(sinal) {
+            console.log(
+                `\n${sinal} recebido. Encerrando servidor...`
+            );
+
+            servidor.close(async () => {
+                /*
+                    Fecha todas as conexões abertas
+                    pelo pool do mysql2.
+                */
+                await pool.end();
+
+                console.log(
+                    "Servidor e banco encerrados."
+                );
+
+                process.exit(0);
+            });
+        }
+
+        process.once("SIGINT", () => {
+            encerrarServidor("SIGINT");
+        });
+
+        process.once("SIGTERM", () => {
+            encerrarServidor("SIGTERM");
+        });
+    } catch (erro) {
+        /*
+            Se o banco não responder, a API
+            não ficará funcionando parcialmente.
+        */
+        console.error(
+            "Não foi possível iniciar a API:",
+            erro.message
+        );
+
+        await pool.end();
+
+        process.exit(1);
+    }
 }
 
-process.on("SIGINT", () => {
-    encerrarServidor("SIGINT");
-});
-
-process.on("SIGTERM", () => {
-    encerrarServidor("SIGTERM");
-});
+iniciarServidor();
