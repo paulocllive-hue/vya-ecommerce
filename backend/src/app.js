@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
@@ -30,6 +31,8 @@ app.use(
         strict: true
     })
 );
+
+app.use(cookieParser());
 
 /*
     Limite geral de requisições por endereço IP.

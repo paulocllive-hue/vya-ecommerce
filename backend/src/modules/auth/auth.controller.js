@@ -1,4 +1,13 @@
+import {
+    criarOpcoesCookieSessao,
+    NOME_COOKIE_SESSAO
+} from "../../config/session-cookie.js";
+
 import { AppError } from "../../errors/app-error.js";
+
+import {
+    criarSessao
+} from "../session/session.service.js";
 
 import {
     validarCadastro,
@@ -13,7 +22,7 @@ import {
 
 /*
     ============================================
-    CONTROLLER DE CADASTRO
+    CADASTRO
     ============================================
 */
 
@@ -58,7 +67,7 @@ export async function cadastrar(
 
 /*
     ============================================
-    CONTROLLER DE LOGIN
+    LOGIN
     ============================================
 */
 
@@ -79,13 +88,37 @@ export async function entrar(
         );
     }
 
+    /*
+        Verifica e-mail, senha e status da conta.
+    */
     const usuario = await autenticarUsuario(
         validacao.data
     );
 
+    /*
+        Somente depois da autenticação bem-sucedida
+        criamos a sessão.
+    */
+    const sessao = await criarSessao(
+        usuario.id
+    );
+
+    /*
+        Envia o token em um cookie HttpOnly.
+
+        O token não será incluído no JSON.
+    */
+    resposta.cookie(
+        NOME_COOKIE_SESSAO,
+        sessao.token,
+        criarOpcoesCookieSessao(
+            sessao.duracaoEmMilissegundos
+        )
+    );
+
     return resposta.status(200).json({
         success: true,
-        message: "Credenciais válidas.",
+        message: "Login realizado com sucesso.",
         data: {
             usuario
         }
