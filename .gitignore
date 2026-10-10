@@ -23,3 +23,16 @@ build/
 # Arquivos criados pelo sistema operacional
 .DS_Store
 Thumbs.db
+
+# Dependências
+node_modules/
+**/node_modules/
+
+# Variáveis sigilosas
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
