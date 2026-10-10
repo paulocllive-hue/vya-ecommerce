@@ -4,19 +4,30 @@ import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 import { z } from "zod";
 
+
 /*
-    Descobre o caminho da pasta onde este arquivo está.
+    Descobre o endereço completo deste arquivo.
 */
-const caminhoArquivo = fileURLToPath(import.meta.url);
-const pastaAtual = path.dirname(caminhoArquivo);
+const caminhoArquivo = fileURLToPath(
+    import.meta.url
+);
+
+
+/*
+    Descobre a pasta onde env.js está localizado.
+*/
+const pastaAtual = path.dirname(
+    caminhoArquivo
+);
+
 
 /*
     Localiza o arquivo backend/.env.
 
-    env.js está em:
+    env.js está localizado em:
     backend/src/config/env.js
 
-    "../../.env" volta duas pastas:
+    "../../.env" volta:
     config → src → backend
 */
 const caminhoEnv = path.resolve(
@@ -24,28 +35,44 @@ const caminhoEnv = path.resolve(
     "../../.env"
 );
 
+
 /*
-    Carrega as variáveis do .env para process.env.
+    Carrega as variáveis do arquivo .env
+    para process.env.
 */
 dotenv.config({
     path: caminhoEnv,
     quiet: true
 });
 
+
 /*
-    Define quais configurações o backend exige
-    e qual formato cada uma deve possuir.
+    Define e valida todas as configurações
+    necessárias para o backend.
 */
 const esquemaAmbiente = z.object({
+    /*
+        Ambiente atual da aplicação.
+    */
     NODE_ENV: z
-        .enum(["development", "test", "production"])
+        .enum([
+            "development",
+            "test",
+            "production"
+        ])
         .default("development"),
 
+    /*
+        Endereço em que a API ficará disponível.
+    */
     HOST: z
         .string()
         .min(1)
         .default("127.0.0.1"),
 
+    /*
+        Porta HTTP da API.
+    */
     PORT: z.coerce
         .number()
         .int()
@@ -53,6 +80,9 @@ const esquemaAmbiente = z.object({
         .max(65535)
         .default(3000),
 
+    /*
+        Configurações do MariaDB.
+    */
     DB_HOST: z
         .string()
         .min(1),
@@ -74,19 +104,32 @@ const esquemaAmbiente = z.object({
 
     DB_PASSWORD: z
         .string()
-        .min(12)
+        .min(12),
+
+    /*
+        Quantidade de dias que uma sessão
+        poderá permanecer válida.
+    */
+    SESSION_TTL_DAYS: z.coerce
+        .number()
+        .int()
+        .min(1)
+        .max(30)
+        .default(7)
 });
 
+
 /*
-    Verifica as variáveis carregadas.
+    Valida as variáveis carregadas do .env.
 */
 const resultado = esquemaAmbiente.safeParse(
     process.env
 );
 
+
 /*
     Se alguma configuração estiver ausente
-    ou inválida, o backend será interrompido.
+    ou inválida, o backend será encerrado.
 */
 if (!resultado.success) {
     console.error(
@@ -97,11 +140,13 @@ if (!resultado.success) {
     process.exit(1);
 }
 
+
 /*
     Exporta somente as configurações validadas.
 
-    Object.freeze impede alterações acidentais
-    durante a execução do backend.
+    Object.freeze impede que essas configurações
+    sejam alteradas acidentalmente durante
+    a execução da aplicação.
 */
 export const env = Object.freeze(
     resultado.data

@@ -2,59 +2,91 @@ import express from "express";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 
+import { AppError } from "./errors/app-error.js";
+import { tratarErros } from "./middlewares/error.middleware.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+
 const app = express();
 
+/*
+    Evita anunciar publicamente que usamos Express.
+*/
 app.disable("x-powered-by");
 
+/*
+    Adiciona cabeçalhos HTTP de segurança.
+*/
 app.use(helmet());
 
+/*
+    Limita o tamanho do JSON recebido.
+
+    Isso evita que alguém envie arquivos enormes
+    tentando consumir a memória do servidor.
+*/
 app.use(
     express.json({
-        limit: "10kb"
+        limit: "10kb",
+        strict: true
     })
 );
 
-app.use(
-    express.urlencoded({
-        extended: false,
-        limit: "10kb"
-    })
-);
-
-const limitadorApi = rateLimit({
+/*
+    Limite geral de requisições por endereço IP.
+*/
+const limitadorGeral = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
     standardHeaders: "draft-8",
     legacyHeaders: false,
+
     message: {
         success: false,
+        code: "MUITAS_REQUISICOES",
         message: "Muitas requisições. Tente novamente mais tarde."
     }
 });
 
-app.use("/api", limitadorApi);
+app.use("/api", limitadorGeral);
 
-app.get("/api/health", (request, response) => {
-    response.status(200).json({
-        success: true,
-        message: "API VYA funcionando"
-    });
+/*
+    Rota de verificação da API.
+*/
+app.get(
+    "/api/health",
+    (requisicao, resposta) => {
+        return resposta.status(200).json({
+            success: true,
+            message: "API VYA funcionando"
+        });
+    }
+);
+
+/*
+    Rotas de autenticação.
+*/
+app.use(
+    "/api/auth",
+    authRoutes
+);
+
+/*
+    Esta parte somente será executada quando
+    nenhuma rota anterior corresponder.
+*/
+app.use((requisicao, resposta, proximo) => {
+    proximo(
+        new AppError(
+            "Rota não encontrada.",
+            404,
+            "ROTA_NAO_ENCONTRADA"
+        )
+    );
 });
 
-app.use((request, response) => {
-    response.status(404).json({
-        success: false,
-        message: "Rota não encontrada"
-    });
-});
-
-app.use((error, request, response, next) => {
-    console.error(error);
-
-    response.status(500).json({
-        success: false,
-        message: "Erro interno do servidor"
-    });
-});
+/*
+    O middleware de erros precisa ser o último.
+*/
+app.use(tratarErros);
 
 export default app;

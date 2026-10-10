@@ -69,6 +69,42 @@ export const cadastroSchema = z
         }
     );
 
+    /*
+    Validação da entrada do login.
+*/
+export const loginSchema = z.strictObject({
+    email: z
+        .string({
+            error: "O e-mail deve ser um texto."
+        })
+        .trim()
+        .toLowerCase()
+        .max(
+            254,
+            "O e-mail deve possuir no máximo 254 caracteres."
+        )
+        .email(
+            "Informe um endereço de e-mail válido."
+        ),
+
+    senha: z
+        .string({
+            error: "A senha deve ser um texto."
+        })
+        .min(
+            1,
+            "A senha é obrigatória."
+        )
+        .max(
+            128,
+            "A senha deve possuir no máximo 128 caracteres."
+        )
+});
+
+export function validarLogin(dados) {
+    return loginSchema.safeParse(dados);
+}
+
 /*
     Executa a validação sem lançar uma exceção.
 
