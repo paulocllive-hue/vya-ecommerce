@@ -24,11 +24,11 @@ build/
 .DS_Store
 Thumbs.db
 
-# Dependências
+# Dependências do Node.js
 node_modules/
 **/node_modules/
 
-# Variáveis sigilosas
+# Variáveis de ambiente e senhas
 .env
 .env.*
 !.env.example
