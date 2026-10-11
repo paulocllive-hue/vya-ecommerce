@@ -1,12 +1,14 @@
 import {
     criarOpcoesCookieSessao,
+    criarOpcoesRemocaoCookie,
     NOME_COOKIE_SESSAO
 } from "../../config/session-cookie.js";
 
 import { AppError } from "../../errors/app-error.js";
 
 import {
-    criarSessao
+    criarSessao,
+    revogarSessao
 } from "../session/session.service.js";
 
 import {
@@ -89,24 +91,24 @@ export async function entrar(
     }
 
     /*
-        Verifica e-mail, senha e status da conta.
+        Confere o e-mail, o hash da senha
+        e o status da conta.
     */
     const usuario = await autenticarUsuario(
         validacao.data
     );
 
     /*
-        Somente depois da autenticação bem-sucedida
-        criamos a sessão.
+        Cria a sessão somente depois que as
+        credenciais forem validadas.
     */
     const sessao = await criarSessao(
         usuario.id
     );
 
     /*
-        Envia o token em um cookie HttpOnly.
-
-        O token não será incluído no JSON.
+        Envia o token no cookie HttpOnly.
+        O token não aparece na resposta JSON.
     */
     resposta.cookie(
         NOME_COOKIE_SESSAO,
@@ -122,5 +124,74 @@ export async function entrar(
         data: {
             usuario
         }
+    });
+}
+
+
+/*
+    ============================================
+    USUÁRIO AUTENTICADO
+    ============================================
+*/
+
+export function obterUsuarioAtual(
+    requisicao,
+    resposta
+) {
+    return resposta.status(200).json({
+        success: true,
+        message: "Usuário autenticado.",
+        data: {
+            usuario:
+                requisicao.autenticacao.usuario
+        }
+    });
+}
+
+
+/*
+    ============================================
+    LOGOUT
+    ============================================
+*/
+
+export async function sair(
+    requisicao,
+    resposta
+) {
+    /*
+        Recupera o token enviado pelo navegador.
+    */
+    const token =
+        requisicao.cookies?.[
+            NOME_COOKIE_SESSAO
+        ];
+
+    /*
+        Se existir um token, seu hash será
+        localizado no banco e a sessão será
+        marcada como revogada.
+
+        O token original não é armazenado.
+    */
+    if (token) {
+        await revogarSessao(token);
+    }
+
+    /*
+        Remove o cookie do navegador.
+
+        Para removê-lo, path, secure e sameSite
+        precisam ser iguais aos usados quando
+        ele foi criado.
+    */
+    resposta.clearCookie(
+        NOME_COOKIE_SESSAO,
+        criarOpcoesRemocaoCookie()
+    );
+
+    return resposta.status(200).json({
+        success: true,
+        message: "Logout realizado com sucesso."
     });
 }

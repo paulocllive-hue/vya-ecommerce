@@ -1,29 +1,118 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 
+import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
 import { tratarErros } from "./middlewares/error.middleware.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 
+
 const app = express();
 
+
 /*
-    Evita anunciar publicamente que usamos Express.
+    Transforma a lista do .env em um conjunto
+    de origens permitidas.
+
+    Exemplo:
+
+    http://127.0.0.1,http://localhost
+*/
+const origensPermitidas = new Set(
+    env.FRONTEND_ORIGINS
+        .split(",")
+        .map((origem) => origem.trim())
+        .filter(Boolean)
+);
+
+
+/*
+    Evita anunciar publicamente que o servidor
+    utiliza Express.
 */
 app.disable("x-powered-by");
+
 
 /*
     Adiciona cabeçalhos HTTP de segurança.
 */
 app.use(helmet());
 
+
+/*
+    ============================================
+    CORS
+    ============================================
+
+    Controla quais páginas abertas em navegadores
+    podem se comunicar com a API.
+*/
+
+app.use(
+    cors({
+        origin(origem, liberarAcesso) {
+            /*
+                Requisições feitas por ferramentas
+                como PowerShell geralmente não
+                possuem o cabeçalho Origin.
+            */
+            if (!origem) {
+                liberarAcesso(null, true);
+                return;
+            }
+
+            /*
+                Libera somente origens cadastradas
+                na variável FRONTEND_ORIGINS.
+            */
+            if (origensPermitidas.has(origem)) {
+                liberarAcesso(null, true);
+                return;
+            }
+
+            /*
+                Uma página de origem desconhecida
+                não receberá autorização CORS.
+            */
+            liberarAcesso(
+                new AppError(
+                    "Origem não autorizada.",
+                    403,
+                    "ORIGEM_NAO_AUTORIZADA"
+                )
+            );
+        },
+
+        /*
+            Permite que o navegador envie
+            cookies junto das requisições.
+        */
+        credentials: true,
+
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+
+        allowedHeaders: [
+            "Content-Type",
+            "X-CSRF-Token"
+        ],
+
+        optionsSuccessStatus: 204
+    })
+);
+
+
 /*
     Limita o tamanho do JSON recebido.
-
-    Isso evita que alguém envie arquivos enormes
-    tentando consumir a memória do servidor.
 */
 app.use(
     express.json({
@@ -32,11 +121,21 @@ app.use(
     })
 );
 
-app.use(cookieParser());
 
 /*
-    Limite geral de requisições por endereço IP.
+    Converte os cookies recebidos para:
+
+    requisicao.cookies
 */
+app.use(cookieParser());
+
+
+/*
+    ============================================
+    LIMITADOR GERAL
+    ============================================
+*/
+
 const limitadorGeral = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
@@ -46,14 +145,16 @@ const limitadorGeral = rateLimit({
     message: {
         success: false,
         code: "MUITAS_REQUISICOES",
-        message: "Muitas requisições. Tente novamente mais tarde."
+        message:
+            "Muitas requisições. Tente novamente mais tarde."
     }
 });
 
 app.use("/api", limitadorGeral);
 
+
 /*
-    Rota de verificação da API.
+    GET /api/health
 */
 app.get(
     "/api/health",
@@ -65,6 +166,7 @@ app.get(
     }
 );
 
+
 /*
     Rotas de autenticação.
 */
@@ -73,9 +175,10 @@ app.use(
     authRoutes
 );
 
+
 /*
-    Esta parte somente será executada quando
-    nenhuma rota anterior corresponder.
+    Esta parte é executada quando nenhuma
+    rota anterior foi encontrada.
 */
 app.use((requisicao, resposta, proximo) => {
     proximo(
@@ -87,9 +190,11 @@ app.use((requisicao, resposta, proximo) => {
     );
 });
 
+
 /*
     O middleware de erros precisa ser o último.
 */
 app.use(tratarErros);
+
 
 export default app;

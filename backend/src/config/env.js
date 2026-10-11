@@ -80,6 +80,12 @@ const esquemaAmbiente = z.object({
         .max(65535)
         .default(3000),
 
+    FRONTEND_ORIGINS: z
+        .string()
+        .min(1)
+        .default(
+            "http://127.0.0.1,http://localhost"
+        ),
     /*
         Configurações do MariaDB.
     */

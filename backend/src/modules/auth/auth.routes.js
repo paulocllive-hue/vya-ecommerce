@@ -2,17 +2,26 @@ import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 
 import {
+    exigirAutenticacao
+} from "../../middlewares/auth.middleware.js";
+
+import {
     cadastrar,
-    entrar
+    entrar,
+    obterUsuarioAtual,
+    sair
 } from "./auth.controller.js";
+
 
 const authRoutes = Router();
 
 
 /*
-    Limita tentativas de login realizadas
-    pelo mesmo endereço IP.
+    ============================================
+    LIMITADOR DO LOGIN
+    ============================================
 */
+
 const limitadorLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
@@ -23,7 +32,8 @@ const limitadorLogin = rateLimit({
     message: {
         success: false,
         code: "MUITAS_TENTATIVAS",
-        message: "Muitas tentativas. Aguarde e tente novamente."
+        message:
+            "Muitas tentativas. Aguarde e tente novamente."
     }
 });
 
@@ -31,6 +41,7 @@ const limitadorLogin = rateLimit({
 /*
     POST /api/auth/cadastro
 */
+
 authRoutes.post(
     "/cadastro",
     cadastrar
@@ -40,10 +51,39 @@ authRoutes.post(
 /*
     POST /api/auth/login
 */
+
 authRoutes.post(
     "/login",
     limitadorLogin,
     entrar
+);
+
+
+/*
+    GET /api/auth/me
+
+    Somente usuários com sessão válida
+    conseguem acessar.
+*/
+
+authRoutes.get(
+    "/me",
+    exigirAutenticacao,
+    obterUsuarioAtual
+);
+
+
+/*
+    POST /api/auth/logout
+
+    O logout é idempotente: mesmo que o cookie
+    não exista, a resposta continuará sendo
+    bem-sucedida.
+*/
+
+authRoutes.post(
+    "/logout",
+    sair
 );
 
 
