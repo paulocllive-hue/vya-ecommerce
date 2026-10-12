@@ -42,3 +42,12 @@
     margin-top: 12px;
     text-align: center;
 }
+
+/*
+    Respeita o atributo hidden utilizado
+    pelo JavaScript do modal.
+*/
+
+.auth-modal [hidden] {
+    display: none !important;
+}

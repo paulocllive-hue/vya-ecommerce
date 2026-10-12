@@ -1148,9 +1148,12 @@ async function inicializarLoginGoogle() {
                     }
                 );
 
-                usuarioAtual = null;
-                atualizarCabecalho();
-                fecharModal();
+                localStorage.removeItem("vyacarrinho");
+
+                    usuarioAtual = null;
+                    atualizarCabecalho();
+                    fecharModal();
+                    window.location.reload();
             } catch (erro) {
                 mostrarMensagem(
                     mensagemLogout,
