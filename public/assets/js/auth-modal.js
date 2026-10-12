@@ -2,7 +2,7 @@
     "use strict";
 
     const URL_API =
-        "http://127.0.0.1:3000/api";
+    "http://localhost:3000/api";
 
     const CHAVE_CONVITE_EXIBIDO =
         "vya_convite_login_exibido";
@@ -240,11 +240,25 @@
                                 </form>
                             </div>
 
-                            <p class="auth-modal__oauth-aviso">
-                                O acesso com Google será adicionado
-                                na próxima etapa de autenticação.
-                            </p>
-                        </div>
+                                <div class="auth-modal__oauth">
+                                    <div class="auth-modal__divisor">
+                                        <span>ou continue com</span>
+                                    </div>
+
+                                    <div
+                                        class="auth-modal__google-botao"
+                                        id="auth-google-botao"
+                                    ></div>
+
+                                    <p
+                                        class="auth-formulario__mensagem"
+                                        id="auth-mensagem-google"
+                                        role="alert"
+                                        aria-live="polite"
+                                    ></p>
+                                </div>
+
+                                </div>
 
                         <div
                             class="auth-modal__usuario"
@@ -458,6 +472,269 @@
         );
 
     const botaoConta = obterBotaoConta();
+
+    const areaBotaoGoogle =
+    document.querySelector(
+        "#auth-google-botao"
+    );
+
+    const mensagemGoogle =
+    document.querySelector(
+        "#auth-mensagem-google"
+    );
+
+    /*
+    ============================================
+    LOGIN COM GOOGLE
+    ============================================
+*/
+
+
+/*
+    Carrega a biblioteca oficial do Google
+    diretamente dos servidores do Google.
+*/
+function carregarBibliotecaGoogle() {
+    return new Promise(
+        (resolver, rejeitar) => {
+            /*
+                Se já foi carregada anteriormente,
+                não precisamos carregar novamente.
+            */
+            if (
+                window.google?.accounts?.id
+            ) {
+                resolver();
+                return;
+            }
+
+            /*
+                Impede a criação de dois scripts
+                iguais na mesma página.
+            */
+            const scriptExistente =
+                document.querySelector(
+                    "script[data-google-identity]"
+                );
+
+            if (scriptExistente) {
+                scriptExistente.addEventListener(
+                    "load",
+                    resolver,
+                    {
+                        once: true
+                    }
+                );
+
+                scriptExistente.addEventListener(
+                    "error",
+                    () => {
+                        rejeitar(
+                            new Error(
+                                "Não foi possível carregar o login Google."
+                            )
+                        );
+                    },
+                    {
+                        once: true
+                    }
+                );
+
+                return;
+            }
+
+            const script =
+                document.createElement("script");
+
+            script.src =
+                "https://accounts.google.com/gsi/client";
+
+            script.async = true;
+            script.defer = true;
+
+            script.dataset.googleIdentity =
+                "true";
+
+            script.addEventListener(
+                "load",
+                resolver,
+                {
+                    once: true
+                }
+            );
+
+            script.addEventListener(
+                "error",
+                () => {
+                    rejeitar(
+                        new Error(
+                            "Não foi possível carregar o login Google."
+                        )
+                    );
+                },
+                {
+                    once: true
+                }
+            );
+
+            document.head.appendChild(script);
+        }
+    );
+}
+
+
+/*
+    Recebe a credencial depois que o usuário
+    seleciona sua conta na janela do Google.
+*/
+async function processarCredencialGoogle(
+    respostaGoogle
+) {
+    if (
+        typeof respostaGoogle?.credential !==
+        "string"
+    ) {
+        mostrarMensagem(
+            mensagemGoogle,
+            "O Google não forneceu uma credencial válida.",
+            "erro"
+        );
+
+        return;
+    }
+
+    mostrarMensagem(
+        mensagemGoogle,
+        "Validando sua conta Google..."
+    );
+
+    try {
+        /*
+            Envia a credencial para o backend.
+
+            O frontend não valida o token sozinho.
+        */
+        const resultado =
+            await chamarApi(
+                "/auth/google",
+                {
+                    method: "POST",
+
+                    body: JSON.stringify({
+                        credential:
+                            respostaGoogle.credential
+                    })
+                }
+            );
+
+        usuarioAtual =
+            resultado.data.usuario;
+
+        atualizarCabecalho();
+
+        mostrarMensagem(
+            mensagemGoogle,
+            "Login com Google realizado com sucesso.",
+            "sucesso"
+        );
+
+        window.setTimeout(() => {
+            fecharModal();
+        }, 900);
+    } catch (erro) {
+        mostrarMensagem(
+            mensagemGoogle,
+            erro.message,
+            "erro"
+        );
+    }
+}
+
+
+/*
+    Busca o Client ID público no backend,
+    inicializa o Google e cria o botão.
+*/
+async function inicializarLoginGoogle() {
+    if (
+        !areaBotaoGoogle ||
+        !mensagemGoogle
+    ) {
+        return;
+    }
+
+    try {
+        /*
+            As duas operações acontecem juntas:
+
+            1. buscar a configuração no backend;
+            2. carregar a biblioteca do Google.
+        */
+        const [
+            configuracao
+        ] = await Promise.all([
+            chamarApi(
+                "/config/public",
+                {
+                    method: "GET"
+                }
+            ),
+
+            carregarBibliotecaGoogle()
+        ]);
+
+        const googleClientId =
+            configuracao?.data?.googleClientId;
+
+        if (
+            typeof googleClientId !== "string" ||
+            !googleClientId.endsWith(
+                ".apps.googleusercontent.com"
+            )
+        ) {
+            throw new Error(
+                "O login Google não está configurado."
+            );
+        }
+
+        /*
+            Inicializa o Google Identity Services.
+        */
+        window.google.accounts.id.initialize({
+            client_id: googleClientId,
+
+            callback:
+                processarCredencialGoogle,
+
+            ux_mode: "popup",
+
+            auto_select: false
+        });
+
+        /*
+            Desenha o botão oficial dentro
+            de #auth-google-botao.
+        */
+        window.google.accounts.id.renderButton(
+            areaBotaoGoogle,
+            {
+                type: "standard",
+                theme: "outline",
+                size: "large",
+                text: "continue_with",
+                shape: "pill",
+                logo_alignment: "left",
+                width: 280
+            }
+        );
+    } catch (erro) {
+        mostrarMensagem(
+            mensagemGoogle,
+            erro.message,
+            "erro"
+        );
+    }
+}''
 
 
     function selecionarAba(nome) {
@@ -965,5 +1242,6 @@
     }
 
 
-    verificarSessao();
+    inicializarLoginGoogle();
+verificarSessao();
 })();

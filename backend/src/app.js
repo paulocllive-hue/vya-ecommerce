@@ -8,6 +8,7 @@ import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
 import { tratarErros } from "./middlewares/error.middleware.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import publicConfigRoutes from "./modules/config/public-config.routes.js";
 
 
 const app = express();
@@ -166,6 +167,15 @@ app.get(
     }
 );
 
+
+/*
+    Configurações públicas utilizadas
+    pelo frontend.
+*/
+app.use(
+    "/api/config",
+    publicConfigRoutes
+);
 
 /*
     Rotas de autenticação.

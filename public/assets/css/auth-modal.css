@@ -1,0 +1,44 @@
+/*
+    ==========================================
+    LOGIN COM GOOGLE
+    ==========================================
+*/
+
+.auth-modal__oauth {
+    margin-top: 24px;
+}
+
+.auth-modal__divisor {
+    align-items: center;
+    color: #667085;
+    display: flex;
+    font-size: 0.85rem;
+    gap: 12px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.auth-modal__divisor::before,
+.auth-modal__divisor::after {
+    background-color: #d9dee7;
+    content: "";
+    flex: 1;
+    height: 1px;
+}
+
+.auth-modal__divisor span {
+    white-space: nowrap;
+}
+
+.auth-modal__google-botao {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    min-height: 44px;
+    width: 100%;
+}
+
+#auth-mensagem-google {
+    margin-top: 12px;
+    text-align: center;
+}
