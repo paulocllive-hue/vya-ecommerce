@@ -115,3 +115,38 @@ export function validarLogin(dados) {
 export function validarCadastro(dados) {
     return cadastroSchema.safeParse(dados);
 }
+
+/*
+    ============================================
+    LOGIN COM GOOGLE
+    ============================================
+*/
+
+/*
+    A credencial Google é um texto JWT relativamente
+    grande, recebido diretamente do navegador.
+*/
+const esquemaLoginGoogle = z
+    .object({
+        credential: z
+            .string()
+            .trim()
+            .min(
+                100,
+                "A credencial do Google é inválida."
+            )
+            .max(
+                8192,
+                "A credencial do Google excede o tamanho permitido."
+            )
+    })
+    .strict();
+
+
+/*
+    Retorna o resultado da validação sem lançar
+    um erro automaticamente.
+*/
+export function validarLoginGoogle(dados) {
+    return esquemaLoginGoogle.safeParse(dados);
+}

@@ -51,6 +51,226 @@ a {
 button {
     font: inherit;
 }
+
+/*
+    ==========================================
+    BOTÃO DA CONTA NO CABEÇALHO
+    ==========================================
+*/
+
+.conta-link {
+    background: transparent;
+    border: 1px solid var(--cor-secundaria, #23395b);
+    border-radius: 999px;
+    color: var(--cor-secundaria, #23395b);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    padding: 9px 16px;
+    white-space: nowrap;
+}
+
+.conta-link:hover,
+.conta-link:focus-visible {
+    background-color: var(--cor-secundaria, #23395b);
+    color: #ffffff;
+}
+
+
+/*
+    ==========================================
+    MODAL
+    ==========================================
+*/
+
+.auth-modal[hidden] {
+    display: none;
+}
+
+.auth-modal {
+    inset: 0;
+    position: fixed;
+    z-index: 5000;
+}
+
+.auth-modal__fundo {
+    background-color: rgba(6, 25, 45, 0.72);
+    inset: 0;
+    position: absolute;
+}
+
+.auth-modal__janela {
+    background-color: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 24px 70px rgba(6, 25, 45, 0.28);
+    left: 50%;
+    max-height: 90vh;
+    max-width: 520px;
+    overflow-y: auto;
+    padding: 34px;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 32px);
+}
+
+.auth-modal__fechar {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: #23395b;
+    cursor: pointer;
+    display: flex;
+    font-size: 1.7rem;
+    height: 42px;
+    justify-content: center;
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    width: 42px;
+}
+
+.auth-modal__cabecalho {
+    margin-bottom: 24px;
+    padding-right: 38px;
+}
+
+.auth-modal__cabecalho h2 {
+    color: var(--cor-secundaria, #23395b);
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin: 6px 0;
+}
+
+.auth-modal__cabecalho p {
+    color: var(--cor-texto-claro, #666666);
+}
+
+.auth-modal__abas {
+    background-color: #f2f5f4;
+    border-radius: 999px;
+    display: grid;
+    gap: 4px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 24px;
+    padding: 4px;
+}
+
+.auth-modal__aba {
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    color: #23395b;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    padding: 11px 14px;
+}
+
+.auth-modal__aba[aria-selected="true"] {
+    background-color: #23395b;
+    color: #ffffff;
+}
+
+.auth-formulario {
+    display: grid;
+    gap: 17px;
+}
+
+.auth-formulario__campo {
+    display: grid;
+    gap: 6px;
+}
+
+.auth-formulario label {
+    color: #23395b;
+    font-weight: 700;
+}
+
+.auth-formulario input {
+    border: 1px solid #cbd5d1;
+    border-radius: 10px;
+    font: inherit;
+    min-height: 46px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.auth-formulario input:focus {
+    border-color: #00a896;
+    box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.15);
+    outline: none;
+}
+
+.auth-formulario__mensagem {
+    border-radius: 10px;
+    font-size: 0.92rem;
+    min-height: 24px;
+    padding: 0;
+}
+
+.auth-formulario__mensagem[data-tipo="erro"] {
+    background-color: #fff0f2;
+    color: #a5223d;
+    padding: 10px;
+}
+
+.auth-formulario__mensagem[data-tipo="sucesso"] {
+    background-color: #eaf9f4;
+    color: #17654f;
+    padding: 10px;
+}
+
+.auth-modal__oauth-aviso {
+    border-top: 1px solid #e4e4e4;
+    color: #666666;
+    font-size: 0.9rem;
+    margin-top: 24px;
+    padding-top: 18px;
+    text-align: center;
+}
+
+.auth-modal__usuario {
+    display: grid;
+    gap: 18px;
+    text-align: center;
+}
+
+.auth-modal__usuario h2 {
+    color: #23395b;
+}
+
+.auth-modal__usuario-email {
+    color: #666666;
+}
+
+body.auth-modal-aberto {
+    overflow: hidden;
+}
+
+
+/*
+    ==========================================
+    CELULAR
+    ==========================================
+*/
+
+@media (max-width: 760px) {
+    .conta-link {
+        font-size: 0.85rem;
+        padding: 7px 10px;
+    }
+
+    .auth-modal__janela {
+        border-radius: 18px;
+        padding: 28px 20px;
+    }
+
+    .auth-modal__cabecalho h2 {
+        font-size: 1.55rem;
+    }
+}
 /*
     Container utilizado no cabeçalho,
     conteúdo principal e rodapé.

@@ -86,6 +86,9 @@ const esquemaAmbiente = z.object({
         .default(
             "http://127.0.0.1,http://localhost"
         ),
+    
+        
+
     /*
         Configurações do MariaDB.
     */
@@ -121,7 +124,13 @@ const esquemaAmbiente = z.object({
         .int()
         .min(1)
         .max(30)
-        .default(7)
+        .default(7),
+
+    GOOGLE_CLIENT_ID: z
+        .string()
+        .trim()
+        .min(20)
+        .endsWith(".apps.googleusercontent.com")    
 });
 
 

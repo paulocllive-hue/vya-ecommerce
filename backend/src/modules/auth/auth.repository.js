@@ -163,3 +163,133 @@ export async function buscarCredencialPorEmail(
 
     return linhas[0] ?? null;
 }
+
+/*
+    ============================================
+    IDENTIDADE OAUTH
+    ============================================
+*/
+
+
+/*
+    Procura um usuário pelo identificador
+    fornecido pelo provedor OAuth.
+
+    Para o Google, provedorUsuarioId será
+    o campo "sub" validado anteriormente.
+*/
+export async function buscarUsuarioPorIdentidadeOAuth(
+    provedor,
+    provedorUsuarioId,
+    executor = pool
+) {
+    const [linhas] = await executor.execute(
+        `
+            SELECT
+                u.id,
+                u.nome,
+                u.email,
+                u.papel,
+                u.status,
+                u.email_verificado_em,
+                u.ultimo_login_em,
+                u.criado_em,
+                u.atualizado_em,
+
+                io.provedor,
+                io.provedor_usuario_id,
+                io.email_provedor
+
+            FROM identidades_oauth AS io
+
+            INNER JOIN usuarios AS u
+                ON u.id = io.usuario_id
+
+            WHERE io.provedor = ?
+              AND io.provedor_usuario_id = ?
+
+            LIMIT 1
+        `,
+        [
+            provedor,
+            provedorUsuarioId
+        ]
+    );
+
+    return linhas[0] ?? null;
+}
+
+
+/*
+    Cria um usuário proveniente de um login OAuth.
+
+    Como o Google já confirmou o endereço,
+    email_verificado_em recebe a data atual.
+*/
+export async function inserirUsuarioOAuth(
+    conexao,
+    {
+        id,
+        nome,
+        email
+    }
+) {
+    await conexao.execute(
+        `
+            INSERT INTO usuarios (
+                id,
+                nome,
+                email,
+                papel,
+                status,
+                email_verificado_em
+            )
+            VALUES (
+                ?,
+                ?,
+                ?,
+                'cliente',
+                'ativo',
+                UTC_TIMESTAMP(3)
+            )
+        `,
+        [
+            id,
+            nome,
+            email
+        ]
+    );
+}
+
+
+/*
+    Cria o vínculo entre o usuário da VYA
+    e a identidade confirmada pelo Google.
+*/
+export async function inserirIdentidadeOAuth(
+    conexao,
+    {
+        usuarioId,
+        provedor,
+        provedorUsuarioId,
+        emailProvedor
+    }
+) {
+    await conexao.execute(
+        `
+            INSERT INTO identidades_oauth (
+                usuario_id,
+                provedor,
+                provedor_usuario_id,
+                email_provedor
+            )
+            VALUES (?, ?, ?, ?)
+        `,
+        [
+            usuarioId,
+            provedor,
+            provedorUsuarioId,
+            emailProvedor
+        ]
+    );
+}

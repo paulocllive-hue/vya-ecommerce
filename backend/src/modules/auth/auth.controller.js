@@ -13,11 +13,13 @@ import {
 
 import {
     validarCadastro,
-    validarLogin
+    validarLogin,
+    validarLoginGoogle
 } from "./auth.schema.js";
 
 import {
     autenticarUsuario,
+    autenticarUsuarioComGoogle,
     cadastrarUsuario
 } from "./auth.service.js";
 
@@ -193,5 +195,72 @@ export async function sair(
     return resposta.status(200).json({
         success: true,
         message: "Logout realizado com sucesso."
+    });
+}
+
+/*
+    ============================================
+    LOGIN COM GOOGLE
+    ============================================
+*/
+
+export async function entrarComGoogle(
+    requisicao,
+    resposta
+) {
+    /*
+        Valida o formato do JSON recebido.
+    */
+    const validacao = validarLoginGoogle(
+        requisicao.body
+    );
+
+    if (!validacao.success) {
+        throw new AppError(
+            "Os dados enviados são inválidos.",
+            422,
+            "DADOS_INVALIDOS",
+            validacao.error.flatten().fieldErrors
+        );
+    }
+
+    /*
+        Valida a credencial Google e localiza
+        ou cria o usuário correspondente.
+    */
+    const usuario =
+        await autenticarUsuarioComGoogle(
+            validacao.data.credential
+        );
+
+    /*
+        Depois da autenticação Google, criamos
+        uma sessão normal da VYA.
+
+        As demais páginas não precisam saber
+        qual método foi utilizado no login.
+    */
+    const sessao = await criarSessao(
+        usuario.id
+    );
+
+    /*
+        O token da sessão é entregue por cookie
+        HttpOnly e não aparece no JSON.
+    */
+    resposta.cookie(
+        NOME_COOKIE_SESSAO,
+        sessao.token,
+        criarOpcoesCookieSessao(
+            sessao.duracaoEmMilissegundos
+        )
+    );
+
+    return resposta.status(200).json({
+        success: true,
+        message: "Login com Google realizado com sucesso.",
+        data: {
+            usuario
+        }
     });
 }

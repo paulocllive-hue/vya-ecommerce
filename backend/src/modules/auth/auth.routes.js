@@ -8,6 +8,7 @@ import {
 import {
     cadastrar,
     entrar,
+    entrarComGoogle,
     obterUsuarioAtual,
     sair
 } from "./auth.controller.js";
@@ -84,6 +85,15 @@ authRoutes.get(
 authRoutes.post(
     "/logout",
     sair
+);
+
+/*
+    POST /api/auth/google
+*/
+authRoutes.post(
+    "/google",
+    limitadorLogin,
+    entrarComGoogle
 );
 
 

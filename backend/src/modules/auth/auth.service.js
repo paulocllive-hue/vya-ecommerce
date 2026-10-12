@@ -11,9 +11,16 @@ import {
 import {
     buscarCredencialPorEmail,
     buscarUsuarioPorEmail,
+    buscarUsuarioPorIdentidadeOAuth,
     inserirCredencialLocal,
-    inserirUsuario
+    inserirIdentidadeOAuth,
+    inserirUsuario,
+    inserirUsuarioOAuth
 } from "./auth.repository.js";
+
+import {
+    validarCredencialGoogle
+} from "./google-auth.service.js";
 
 
 /*
@@ -239,4 +246,185 @@ export async function autenticarUsuario({
         papel: credencial.papel,
         status: credencial.status
     };
+}
+
+/*
+    ============================================
+    AUTENTICAÇÃO COM GOOGLE
+    ============================================
+*/
+
+export async function autenticarUsuarioComGoogle(
+    credencial
+) {
+    /*
+        Primeiro validamos a credencial diretamente
+        com a biblioteca oficial do Google.
+
+        Nenhuma operação no banco acontece antes
+        dessa validação.
+    */
+    const identidadeGoogle =
+        await validarCredencialGoogle(
+            credencial
+        );
+
+    const {
+        provedor,
+        provedorUsuarioId,
+        email,
+        nome
+    } = identidadeGoogle;
+
+    /*
+        Verifica se essa identidade Google já está
+        vinculada a um usuário da VYA.
+    */
+    const usuarioVinculado =
+        await buscarUsuarioPorIdentidadeOAuth(
+            provedor,
+            provedorUsuarioId
+        );
+
+    if (usuarioVinculado) {
+        /*
+            Uma conta inativa ou bloqueada não poderá
+            entrar nem mesmo pelo Google.
+        */
+        if (usuarioVinculado.status !== "ativo") {
+            throw new AppError(
+                "Esta conta não está disponível para login.",
+                403,
+                "CONTA_INDISPONIVEL"
+            );
+        }
+
+        return {
+            id: usuarioVinculado.id,
+            nome: usuarioVinculado.nome,
+            email: usuarioVinculado.email,
+            papel: usuarioVinculado.papel,
+            status: usuarioVinculado.status
+        };
+    }
+
+    /*
+        Se ainda não existe vínculo Google, verificamos
+        se o e-mail já pertence a outro cadastro VYA.
+
+        Não fazemos vinculação automática porque isso
+        poderia permitir tomada de conta.
+    */
+    const usuarioMesmoEmail =
+        await buscarUsuarioPorEmail(email);
+
+    if (usuarioMesmoEmail) {
+        throw new AppError(
+            "Já existe uma conta com este e-mail. Entre com sua senha para vincular o Google com segurança.",
+            409,
+            "CONTA_EXISTENTE_REQUER_VINCULACAO"
+        );
+    }
+
+    /*
+        A conta não existe. Será criado um novo
+        usuário VYA ligado à identidade Google.
+    */
+    const usuarioId = randomUUID();
+    const conexao = await pool.getConnection();
+
+    try {
+        /*
+            Usuário e vínculo OAuth precisam ser
+            criados juntos.
+
+            Se uma das operações falhar, nenhuma
+            delas será mantida.
+        */
+        await conexao.beginTransaction();
+
+        await inserirUsuarioOAuth(
+            conexao,
+            {
+                id: usuarioId,
+                nome,
+                email
+            }
+        );
+
+        await inserirIdentidadeOAuth(
+            conexao,
+            {
+                usuarioId,
+                provedor,
+                provedorUsuarioId,
+                emailProvedor: email
+            }
+        );
+
+        await conexao.commit();
+
+        return {
+            id: usuarioId,
+            nome,
+            email,
+            papel: "cliente",
+            status: "ativo"
+        };
+    } catch (erro) {
+        await conexao.rollback();
+
+        /*
+            O índice UNIQUE protege contra duas
+            requisições simultâneas da mesma conta.
+        */
+        if (erro.code === "ER_DUP_ENTRY") {
+            /*
+                Depois do rollback, verificamos se
+                outra requisição conseguiu criar
+                o vínculo primeiro.
+            */
+            const usuarioCriadoSimultaneamente =
+                await buscarUsuarioPorIdentidadeOAuth(
+                    provedor,
+                    provedorUsuarioId,
+                    conexao
+                );
+
+            if (usuarioCriadoSimultaneamente) {
+                if (
+                    usuarioCriadoSimultaneamente.status !==
+                    "ativo"
+                ) {
+                    throw new AppError(
+                        "Esta conta não está disponível para login.",
+                        403,
+                        "CONTA_INDISPONIVEL"
+                    );
+                }
+
+                return {
+                    id: usuarioCriadoSimultaneamente.id,
+                    nome: usuarioCriadoSimultaneamente.nome,
+                    email: usuarioCriadoSimultaneamente.email,
+                    papel: usuarioCriadoSimultaneamente.papel,
+                    status: usuarioCriadoSimultaneamente.status
+                };
+            }
+
+            /*
+                Se não encontramos o vínculo, o conflito
+                provavelmente ocorreu no e-mail único.
+            */
+            throw new AppError(
+                "Já existe uma conta com este e-mail. Entre com sua senha para vincular o Google com segurança.",
+                409,
+                "CONTA_EXISTENTE_REQUER_VINCULACAO"
+            );
+        }
+
+        throw erro;
+    } finally {
+        conexao.release();
+    }
 }

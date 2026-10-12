@@ -1,0 +1,147 @@
+<!--<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Entre na sua conta VYA."
+    >
+
+    <title>Entrar | VYA</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
+
+    <script
+        src="../assets/js/main.js"
+        defer
+    ></script>
+
+    <script
+        src="../assets/js/login.js"
+        type="module"
+    ></script>
+</head>
+
+<body>
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a
+                class="logo-cabeca"
+                href="../index.html"
+                aria-label="Página inicial da VYA"
+            >
+                <img
+                    class="logo-imagem"
+                    src="../images/logo/Vya vetorizada formato SVG.svg"
+                    alt="VYA"
+                >
+            </a>
+
+            <nav
+                class="menu"
+                id="menu-principal"
+                aria-label="Navegação principal"
+            >
+                <a href="../index.html">Início</a>
+                <a href="./produtos.html">Produtos</a>
+                <a href="./carrinho.html">Carrinho</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="secao">
+            <div class="container">
+                <div class="secao__cabecalho">
+                    <span class="destaque">
+                        Minha conta
+                    </span>
+
+                    <h1>Entrar na VYA</h1>
+
+                    <p>
+                        Informe seu e-mail e sua senha.
+                    </p>
+                </div>
+
+                <form id="formulario-login">
+                    <div>
+                        <label for="email">
+                            E-mail
+                        </label>
+
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            autocomplete="email"
+                            maxlength="254"
+                            required
+                        >
+                    </div>
+
+                    <div>
+                        <label for="senha">
+                            Senha
+                        </label>
+
+                        <input
+                            id="senha"
+                            name="senha"
+                            type="password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <p
+                        id="mensagem-login"
+                        role="alert"
+                        aria-live="polite"
+                    ></p>
+
+                    <button
+                        class="botao"
+                        id="botao-login"
+                        type="submit"
+                    >
+                        Entrar
+                    </button>
+                </form>
+
+                <p>
+                    Ainda não possui uma conta?
+
+                    <a href="./cadastro.html">
+                        Criar conta
+                    </a>
+                </p>
+
+                <p>
+                    O login com Google será habilitado
+                    depois da configuração segura do OAuth.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p class="rodape-direitos">
+                &copy;
+                <span id="ano-atual"></span>
+                VYA. Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
