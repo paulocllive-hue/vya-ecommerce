@@ -8,6 +8,7 @@ import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
 import { tratarErros } from "./middlewares/error.middleware.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import cartRoutes from "./modules/cart/cart.routes.js";
 import publicConfigRoutes from "./modules/config/public-config.routes.js";
 
 
@@ -178,13 +179,18 @@ app.use(
 );
 
 /*
-    Rotas de autenticação.
+    Rotas do carrinho do usuário autenticado.
 */
+
 app.use(
     "/api/auth",
     authRoutes
 );
 
+app.use(
+    "/api/carrinho",
+    cartRoutes
+);
 
 /*
     Esta parte é executada quando nenhuma

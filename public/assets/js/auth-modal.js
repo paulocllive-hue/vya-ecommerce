@@ -632,6 +632,9 @@ async function processarCredencialGoogle(
 
         atualizarCabecalho();
 
+        await window.CarrinhoVya
+    ?.recarregar();
+
         mostrarMensagem(
             mensagemGoogle,
             "Login com Google realizado com sucesso.",
@@ -1016,6 +1019,9 @@ async function inicializarLoginGoogle() {
                 formularioLogin.reset();
                 atualizarCabecalho();
 
+                await window.CarrinhoVya
+    ?.recarregar();
+
                 mostrarMensagem(
                     mensagemLogin,
                     "Login realizado com sucesso.",
@@ -1152,6 +1158,8 @@ async function inicializarLoginGoogle() {
 
                     usuarioAtual = null;
                     atualizarCabecalho();
+                    window.CarrinhoVya
+    ?.zerarContador();
                     fecharModal();
                     window.location.reload();
             } catch (erro) {
