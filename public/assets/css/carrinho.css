@@ -1,0 +1,329 @@
+body.carrinho-aberto {
+    overflow: hidden;
+}
+
+.carrinho-interface[hidden] {
+    display: none;
+}
+
+.carrinho-interface {
+    inset: 0;
+    position: fixed;
+    z-index: 3000;
+}
+
+.carrinho-interface__fundo {
+    background: rgba(6, 42, 74, 0.58);
+    inset: 0;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 0.25s ease;
+}
+
+.carrinho-painel {
+    background: #ffffff;
+    box-shadow: -12px 0 36px rgba(6, 42, 74, 0.18);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 100%;
+    outline: none;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    width: 460px;
+}
+
+.carrinho-interface--aberta .carrinho-interface__fundo {
+    opacity: 1;
+}
+
+.carrinho-interface--aberta .carrinho-painel {
+    transform: translateX(0);
+}
+
+.carrinho-painel__cabecalho {
+    align-items: center;
+    border-bottom: 1px solid #dce4e7;
+    display: flex;
+    justify-content: space-between;
+    padding: 24px 24px 20px;
+}
+
+.carrinho-painel__legenda {
+    color: #00a896;
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+}
+
+.carrinho-painel__cabecalho h2 {
+    color: #062a4a;
+    font-size: 1.65rem;
+    margin: 0;
+}
+
+.carrinho-painel__fechar {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: #062a4a;
+    cursor: pointer;
+    display: flex;
+    font-size: 2rem;
+    height: 42px;
+    justify-content: center;
+    line-height: 1;
+    width: 42px;
+}
+
+.carrinho-painel__fechar:hover,
+.carrinho-painel__fechar:focus-visible {
+    background: #edf4ef;
+}
+
+.carrinho-mensagem {
+    border-radius: 10px;
+    font-size: 0.9rem;
+    margin: 16px 24px 0;
+    padding: 12px 14px;
+}
+
+.carrinho-mensagem--erro {
+    background: #fff0f1;
+    color: #a31d2b;
+}
+
+.carrinho-mensagem--informacao {
+    background: #eaf5f0;
+    color: #0c584f;
+}
+
+.carrinho-estado {
+    align-items: center;
+    color: #5d6d78;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    line-height: 1.5;
+    padding: 48px 32px;
+    text-align: center;
+}
+
+.carrinho-estado strong {
+    color: #062a4a;
+    font-size: 1.15rem;
+}
+
+.carrinho-lista {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 24px 20px;
+}
+
+.carrinho-item {
+    border-bottom: 1px solid #e2e8ea;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 92px 1fr;
+    padding: 18px 0;
+    transition: opacity 0.2s ease;
+}
+
+.carrinho-item--carregando {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.carrinho-item--indisponivel {
+    opacity: 0.65;
+}
+
+.carrinho-item__imagem {
+    align-items: center;
+    aspect-ratio: 4 / 5;
+    background: #eaf2ed;
+    border-radius: 12px;
+    color: #062a4a;
+    display: flex;
+    font-weight: 800;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.carrinho-item__imagem img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.carrinho-item__informacoes {
+    min-width: 0;
+}
+
+.carrinho-item__categoria {
+    color: #00a896;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.carrinho-item__informacoes h3 {
+    color: #062a4a;
+    font-size: 1rem;
+    line-height: 1.25;
+    margin: 3px 0 5px;
+}
+
+.carrinho-item__variante {
+    color: #687782;
+    font-size: 0.82rem;
+    margin: 0 0 8px;
+}
+
+.carrinho-item__preco {
+    color: #062a4a;
+    display: block;
+    font-size: 0.96rem;
+}
+
+.carrinho-item__acoes {
+    align-items: center;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    margin-top: 12px;
+}
+
+.carrinho-quantidade {
+    align-items: center;
+    border: 1px solid #cbd6d9;
+    border-radius: 999px;
+    display: inline-flex;
+    overflow: hidden;
+}
+
+.carrinho-quantidade__botao {
+    background: transparent;
+    border: 0;
+    color: #062a4a;
+    cursor: pointer;
+    font-size: 1.15rem;
+    height: 32px;
+    width: 32px;
+}
+
+.carrinho-quantidade__botao:hover:not(:disabled) {
+    background: #eaf2ed;
+}
+
+.carrinho-quantidade__botao:disabled {
+    color: #aab4ba;
+    cursor: not-allowed;
+}
+
+.carrinho-quantidade span {
+    color: #062a4a;
+    font-size: 0.9rem;
+    font-weight: 700;
+    min-width: 26px;
+    text-align: center;
+}
+
+.carrinho-item__remover,
+.carrinho-esvaziar {
+    background: transparent;
+    border: 0;
+    color: #8b3340;
+    cursor: pointer;
+    font-size: 0.82rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.carrinho-resumo {
+    background: #f7faf8;
+    border-top: 1px solid #dce4e7;
+    padding: 20px 24px 24px;
+}
+
+.carrinho-resumo__linha {
+    color: #53636e;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 9px;
+}
+
+.carrinho-resumo__linha strong {
+    color: #062a4a;
+}
+
+.carrinho-resumo__total {
+    border-top: 1px solid #dce4e7;
+    font-size: 1.18rem;
+    margin-top: 12px;
+    padding-top: 14px;
+}
+
+.carrinho-finalizar {
+    background: #062a4a;
+    border: 0;
+    border-radius: 999px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 14px;
+    padding: 15px 20px;
+    width: 100%;
+}
+
+.carrinho-finalizar:hover,
+.carrinho-finalizar:focus-visible {
+    background: #00a896;
+}
+
+.carrinho-esvaziar {
+    display: block;
+    margin: 15px auto 0;
+}
+
+@media (max-width: 520px) {
+    .carrinho-painel {
+        width: 100%;
+    }
+
+    .carrinho-painel__cabecalho {
+        padding: 20px 18px 16px;
+    }
+
+    .carrinho-lista {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .carrinho-item {
+        gap: 12px;
+        grid-template-columns: 78px 1fr;
+    }
+
+    .carrinho-resumo {
+        padding: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .carrinho-interface__fundo,
+    .carrinho-painel {
+        transition: none;
+    }
+}
