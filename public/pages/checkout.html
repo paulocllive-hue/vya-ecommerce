@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <meta
+        name="description"
+        content="Finalize seu pedido na Vya."
+    >
+    <meta
+        name="referrer"
+        content="no-referrer-when-downgrade"
+    >
+
+    <title>Finalizar compra | Vya</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/auth-modal.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/carrinho.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/checkout.css"
+    >
+
+    <script src="../assets/js/main.js" defer></script>
+    <script src="../assets/js/carrinho.js" defer></script>
+    <script src="../assets/js/auth-modal.js" defer></script>
+    <script src="../assets/js/checkout.js" defer></script>
+</head>
+
+<body>
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a
+                class="logo-cabeca"
+                href="../index.html"
+                aria-label="Página inicial da Vya"
+            >
+                <img
+                    class="logo-imagem"
+                    src="../images/logo/Vya vetorizada formato SVG.svg"
+                    alt="Vya"
+                >
+            </a>
+
+            <button
+                class="menu-botao"
+                id="menu-botao"
+                type="button"
+                aria-label="Abrir menu"
+                aria-expanded="false"
+                aria-controls="menu-principal"
+            >
+                ☰
+            </button>
+
+            <nav
+                class="menu"
+                id="menu-principal"
+                aria-label="Navegação principal"
+            >
+                <a href="../index.html">Início</a>
+                <a href="produtos.html">Produtos</a>
+                <a href="../index.html#categorias">Categorias</a>
+                <a href="../index.html#sobre">Sobre</a>
+                <a
+                    class="conta-link"
+                    id="botao-conta"
+                    href="login.html"
+                >
+                    Entrar / Cadastrar
+                </a>
+            </nav>
+
+            <a
+                class="carrinho-link"
+                href="carrinho.html"
+            >
+                Carrinho
+                <span id="quantidade-carrinho">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="checkout-pagina">
+        <section class="checkout-topo">
+            <div class="container">
+                <nav
+                    class="checkout-etapas"
+                    aria-label="Etapas da compra"
+                >
+                    <span>1. Carrinho</span>
+                    <span aria-current="step">2. Entrega</span>
+                    <span>3. Confirmação</span>
+                </nav>
+
+                <span class="destaque">Finalização segura</span>
+                <h1>Finalize seu pedido</h1>
+                <p>
+                    Confira os produtos e escolha como deseja
+                    receber sua compra Vya.
+                </p>
+            </div>
+        </section>
+
+        <section
+            class="container checkout-carregamento"
+            id="checkout-carregamento"
+            aria-live="polite"
+        >
+            Carregando os dados da sua compra...
+        </section>
+
+        <section
+            class="container checkout-aviso checkout-aviso--erro"
+            id="checkout-erro-inicial"
+            hidden
+        >
+            <h2 id="checkout-erro-titulo">
+                Não foi possível abrir o checkout
+            </h2>
+            <p id="checkout-erro-texto"></p>
+            <div class="checkout-aviso__acoes">
+                <button
+                    class="checkout-botao checkout-botao--principal"
+                    id="checkout-entrar"
+                    type="button"
+                    hidden
+                >
+                    Entrar na minha conta
+                </button>
+                <button
+                    class="checkout-botao checkout-botao--secundario"
+                    id="checkout-tentar-novamente"
+                    type="button"
+                >
+                    Tentar novamente
+                </button>
+                <a
+                    class="checkout-botao checkout-botao--secundario"
+                    href="produtos.html"
+                >
+                    Ver produtos
+                </a>
+            </div>
+        </section>
+
+        <div
+            class="container checkout-layout"
+            id="checkout-conteudo"
+            hidden
+        >
+            <div class="checkout-coluna-principal">
+                <section class="checkout-cartao">
+                    <div class="checkout-cartao__cabecalho">
+                        <span class="checkout-numero">1</span>
+                        <div>
+                            <h2>Forma de recebimento</h2>
+                            <p>Escolha a opção mais conveniente.</p>
+                        </div>
+                    </div>
+
+                    <div class="checkout-opcoes">
+                        <label class="checkout-opcao">
+                            <input
+                                type="radio"
+                                name="metodo-entrega"
+                                value="retirada"
+                                checked
+                            >
+                            <span class="checkout-opcao__conteudo">
+                                <span class="checkout-opcao__linha">
+                                    <strong>Retirada gratuita</strong>
+                                    <span class="checkout-selo checkout-selo--gratis">
+                                        Grátis
+                                    </span>
+                                </span>
+                                <span>
+                                    Retirada no bairro Vista Alegre,
+                                    em Cuiabá. As instruções serão
+                                    informadas após a confirmação.
+                                </span>
+                            </span>
+                        </label>
+
+                        <label
+                            class="checkout-opcao checkout-opcao--indisponivel"
+                            id="checkout-opcao-entrega"
+                        >
+                            <input
+                                type="radio"
+                                name="metodo-entrega"
+                                value="entrega_propria"
+                                disabled
+                            >
+                            <span class="checkout-opcao__conteudo">
+                                <span class="checkout-opcao__linha">
+                                    <strong>Entrega própria</strong>
+                                    <span
+                                        class="checkout-selo"
+                                        id="checkout-selo-entrega"
+                                    >
+                                        Em breve
+                                    </span>
+                                </span>
+                                <span>
+                                    Cuiabá e Várzea Grande, com valor
+                                    calculado pela distância e prazo de
+                                    até 1 dia útil.
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <p
+                        class="checkout-mensagem"
+                        id="checkout-mensagem-entrega"
+                        role="status"
+                        aria-live="polite"
+                    ></p>
+                </section>
+
+                <section
+                    class="checkout-cartao"
+                    id="checkout-area-enderecos"
+                    hidden
+                >
+                    <div class="checkout-cartao__cabecalho">
+                        <span class="checkout-numero">2</span>
+                        <div>
+                            <h2>Endereço da entrega</h2>
+                            <p>Selecione ou cadastre um endereço atendido.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="checkout-enderecos"
+                        id="checkout-lista-enderecos"
+                    ></div>
+
+                    <button
+                        class="checkout-link-botao"
+                        id="checkout-novo-endereco"
+                        type="button"
+                    >
+                        + Cadastrar novo endereço
+                    </button>
+
+                    <form
+                        class="checkout-formulario"
+                        id="checkout-formulario-endereco"
+                        hidden
+                    >
+                        <div class="checkout-campo checkout-campo--inteiro">
+                            <label for="endereco-nome">
+                                Nome do destinatário
+                            </label>
+                            <input
+                                id="endereco-nome"
+                                name="nomeDestinatario"
+                                type="text"
+                                autocomplete="name"
+                                minlength="2"
+                                maxlength="120"
+                                required
+                            >
+                        </div>
+
+                        <div class="checkout-campo">
+                            <label for="endereco-cep">CEP</label>
+                            <input
+                                id="endereco-cep"
+                                name="cep"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="postal-code"
+                                maxlength="9"
+                                placeholder="00000-000"
+                                required
+                            >
+                        </div>
+
+                        <div class="checkout-campo checkout-campo--largo">
+                            <label for="endereco-logradouro">
+                                Rua ou avenida
+                            </label>
+                            <input
+                                id="endereco-logradouro"
+                                name="logradouro"
+                                type="text"
+                                autocomplete="address-line1"
+                                maxlength="180"
+                                required
+                            >
+                        </div>
+
+                        <div class="checkout-campo">
+                            <label for="endereco-numero">Número</label>
+                            <input
+                                id="endereco-numero"
+                                name="numero"
+                                type="text"
+                                maxlength="20"
+                                required
+                            >
+                        </div>
+
+                        <div class="checkout-campo checkout-campo--largo">
+                            <label for="endereco-complemento">
+                                Complemento <span>(opcional)</span>
+                            </label>
+                            <input
+                                id="endereco-complemento"
+                                name="complemento"
+                                type="text"
+                                autocomplete="address-line2"
+                                maxlength="120"
+                            >
+                        </div>
+
+                        <div class="checkout-campo">
+                            <label for="endereco-bairro">Bairro</label>
+                            <input
+                                id="endereco-bairro"
+                                name="bairro"
+                                type="text"
+                                maxlength="100"
+                                required
+                            >
+                        </div>
+
+                        <div class="checkout-campo">
+                            <label for="endereco-cidade">Cidade</label>
+                            <select
+                                id="endereco-cidade"
+                                name="cidade"
+                                required
+                            >
+                                <option value="Cuiabá">Cuiabá</option>
+                                <option value="Várzea Grande">
+                                    Várzea Grande
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="checkout-campo">
+                            <label for="endereco-estado">Estado</label>
+                            <input
+                                id="endereco-estado"
+                                name="estado"
+                                type="text"
+                                value="MT"
+                                readonly
+                            >
+                        </div>
+
+                        <div class="checkout-campo checkout-campo--inteiro">
+                            <label for="endereco-referencia">
+                                Ponto de referência <span>(opcional)</span>
+                            </label>
+                            <input
+                                id="endereco-referencia"
+                                name="referencia"
+                                type="text"
+                                maxlength="180"
+                            >
+                        </div>
+
+                        <label class="checkout-checkbox checkout-campo--inteiro">
+                            <input
+                                name="principal"
+                                type="checkbox"
+                            >
+                            Usar como meu endereço principal
+                        </label>
+
+                        <div class="checkout-formulario__acoes checkout-campo--inteiro">
+                            <button
+                                class="checkout-botao checkout-botao--principal"
+                                id="checkout-salvar-endereco"
+                                type="submit"
+                            >
+                                Salvar endereço
+                            </button>
+                            <button
+                                class="checkout-botao checkout-botao--secundario"
+                                id="checkout-cancelar-endereco"
+                                type="button"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="checkout-cartao checkout-informacao">
+                    <div class="checkout-informacao__icone" aria-hidden="true">
+                        ✓
+                    </div>
+                    <div>
+                        <h2>Compra protegida</h2>
+                        <p>
+                            Preços e estoque são conferidos novamente
+                            pelo servidor antes da criação do pedido.
+                        </p>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="checkout-resumo" aria-labelledby="resumo-titulo">
+                <h2 id="resumo-titulo">Resumo do pedido</h2>
+
+                <div
+                    class="checkout-resumo__itens"
+                    id="checkout-itens"
+                ></div>
+
+                <div class="checkout-resumo__valores">
+                    <div>
+                        <span>Subtotal</span>
+                        <strong id="checkout-subtotal">R$ 0,00</strong>
+                    </div>
+                    <div>
+                        <span>Entrega</span>
+                        <strong id="checkout-frete">Grátis</strong>
+                    </div>
+                    <div class="checkout-resumo__total">
+                        <span>Total</span>
+                        <strong id="checkout-total">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <p
+                    class="checkout-mensagem"
+                    id="checkout-mensagem-final"
+                    role="alert"
+                    aria-live="assertive"
+                ></p>
+
+                <button
+                    class="checkout-botao checkout-botao--confirmar"
+                    id="checkout-finalizar"
+                    type="button"
+                >
+                    Confirmar pedido
+                </button>
+
+                <p class="checkout-resumo__observacao">
+                    O pagamento online será integrado em uma próxima etapa.
+                </p>
+
+                <a class="checkout-voltar" href="produtos.html">
+                    Continuar comprando
+                </a>
+            </aside>
+        </div>
+
+        <section
+            class="container checkout-sucesso"
+            id="checkout-sucesso"
+            hidden
+        >
+            <div class="checkout-sucesso__icone" aria-hidden="true">✓</div>
+            <span class="destaque">Pedido recebido</span>
+            <h1>Seu pedido foi criado com sucesso!</h1>
+            <p>
+                Número do pedido:
+                <strong id="checkout-numero-pedido"></strong>
+            </p>
+            <p id="checkout-sucesso-detalhes"></p>
+            <a
+                class="checkout-botao checkout-botao--principal"
+                href="produtos.html"
+            >
+                Voltar aos produtos
+            </a>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container rodape__conteudo">
+            <div class="rodape-marca">
+                <a
+                    class="logo-rodape"
+                    href="../index.html"
+                    aria-label="Página inicial da Vya"
+                >
+                    <img
+                        src="../images/logo/Vya vetorizada formato SVG.svg"
+                        alt="Vya"
+                    >
+                </a>
+                <p>
+                    Movimento, conforto e liberdade para você
+                    se sentir bem em todos os momentos.
+                </p>
+            </div>
+
+            <div class="rodape-coluna">
+                <h2>Navegação</h2>
+                <a href="../index.html">Início</a>
+                <a href="produtos.html">Produtos</a>
+                <a href="../index.html#categorias">Categorias</a>
+                <a href="../index.html#sobre">Sobre a Vya</a>
+            </div>
+
+            <div class="rodape-coluna">
+                <h2>Ajuda</h2>
+                <a href="#">Fale conosco</a>
+                <a href="#">Entregas</a>
+                <a href="#">Trocas e devoluções</a>
+                <a href="#">Formas de pagamento</a>
+            </div>
+
+            <div class="rodape-coluna">
+                <h2>Minha conta</h2>
+                <a href="login.html">Entrar</a>
+                <a href="cadastro.html">Criar conta</a>
+                <a href="carrinho.html">Meu carrinho</a>
+            </div>
+        </div>
+
+        <p class="rodape-direitos">
+            &copy; <span id="ano-atual"></span>
+            Vya. Todos os direitos reservados.
+        </p>
+    </footer>
+</body>
+</html>

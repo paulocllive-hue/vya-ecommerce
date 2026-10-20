@@ -278,6 +278,14 @@
 
                             <a
                                 class="botao"
+                                href="pages/pedidos.html"
+                                id="auth-link-pedidos"
+                            >
+                                Meus pedidos
+                            </a>
+
+                            <a
+                                class="botao"
                                 href="pages/carrinho.html"
                                 id="auth-link-carrinho"
                             >
@@ -787,6 +795,17 @@ async function inicializarLoginGoogle() {
                 "Abrir minha conta"
             );
 
+            window.dispatchEvent(
+                new CustomEvent(
+                    "vya:autenticacao-alterada",
+                    {
+                        detail: {
+                            usuario: usuarioAtual
+                        }
+                    }
+                )
+            );
+
             return;
         }
 
@@ -796,6 +815,17 @@ async function inicializarLoginGoogle() {
         botaoConta.setAttribute(
             "aria-label",
             "Entrar ou criar conta"
+        );
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "vya:autenticacao-alterada",
+                {
+                    detail: {
+                        usuario: null
+                    }
+                }
+            )
         );
     }
 
@@ -1243,6 +1273,11 @@ async function inicializarLoginGoogle() {
             "#auth-link-carrinho"
         );
 
+    const linkPedidos =
+        document.querySelector(
+            "#auth-link-pedidos"
+        );
+
     if (
         window.location.pathname.includes(
             "/pages/"
@@ -1250,6 +1285,9 @@ async function inicializarLoginGoogle() {
     ) {
         linkCarrinho.href =
             "carrinho.html";
+
+        linkPedidos.href =
+            "pedidos.html";
     }
 
 

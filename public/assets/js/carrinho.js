@@ -164,10 +164,14 @@
         botaoFinalizar.addEventListener(
             "click",
             () => {
-                mostrarMensagem(
-                    "A etapa de finalização da compra será configurada em seguida.",
-                    "informacao"
-                );
+                const estaEmPages =
+                    window.location.pathname.includes(
+                        "/pages/"
+                    );
+
+                window.location.href = estaEmPages
+                    ? "checkout.html"
+                    : "pages/checkout.html";
             }
         );
     }
