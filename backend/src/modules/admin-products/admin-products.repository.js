@@ -49,6 +49,93 @@ export async function listarVariantesAdmin(
 }
 
 
+export async function listarSkusPorPrefixo(
+    prefixo,
+    executor = pool,
+    bloquear = false
+) {
+    const [linhas] = await executor.execute(
+        `
+            SELECT sku
+            FROM produto_variantes
+            WHERE sku LIKE ?
+            ORDER BY sku ASC
+            ${bloquear ? "FOR UPDATE" : ""}
+        `,
+        [`VYA-${prefixo}-%`]
+    );
+
+    return linhas.map((linha) => linha.sku);
+}
+
+
+export async function contarItensPedidoDoProduto(
+    produtoId,
+    executor = pool
+) {
+    const [linhas] = await executor.execute(
+        `
+            SELECT COUNT(*) AS total
+            FROM pedido_itens AS pi
+            WHERE pi.produto_id = ?
+               OR pi.produto_variante_id IN (
+                    SELECT id
+                    FROM produto_variantes
+                    WHERE produto_id = ?
+               )
+        `,
+        [produtoId, produtoId]
+    );
+
+    return Number(linhas[0]?.total ?? 0);
+}
+
+
+export async function excluirItensCarrinhoDoProduto(
+    produtoId,
+    executor
+) {
+    await executor.execute(
+        `
+            DELETE ci
+            FROM carrinho_itens AS ci
+            INNER JOIN produto_variantes AS pv
+                ON pv.id = ci.produto_variante_id
+            WHERE pv.produto_id = ?
+        `,
+        [produtoId]
+    );
+}
+
+
+export async function excluirVariantesDoProduto(
+    produtoId,
+    executor
+) {
+    await executor.execute(
+        `
+            DELETE FROM produto_variantes
+            WHERE produto_id = ?
+        `,
+        [produtoId]
+    );
+}
+
+
+export async function excluirProdutoPorId(
+    produtoId,
+    executor
+) {
+    await executor.execute(
+        `
+            DELETE FROM produtos
+            WHERE id = ?
+        `,
+        [produtoId]
+    );
+}
+
+
 export async function buscarProdutoAdmin(
     produtoId,
     executor = pool,

@@ -196,7 +196,9 @@
                     </label>
                     <label>
                         <span>Categoria</span>
-                        <input id="produto-categoria" type="text" minlength="2" maxlength="80" required>
+                        <select id="produto-categoria" required>
+                            <option value="">Selecione uma categoria</option>
+                        </select>
                     </label>
                 </div>
 
@@ -214,16 +216,12 @@
                     <legend>Primeira variação</legend>
                     <div class="prod-admin-formulario__grade prod-admin-formulario__grade--tres">
                         <label>
-                            <span>SKU</span>
-                            <input id="produto-sku" type="text" minlength="2" maxlength="80">
+                            <span>SKU gerado automaticamente</span>
+                            <input id="produto-sku" type="text" readonly placeholder="Selecione a categoria">
                         </label>
                         <label>
                             <span>Tamanho</span>
                             <input id="produto-tamanho" type="text" maxlength="50" value="Único">
-                        </label>
-                        <label>
-                            <span>Cor</span>
-                            <input id="produto-cor" type="text" maxlength="80" value="Padrão">
                         </label>
                         <label>
                             <span>Preço</span>
@@ -278,8 +276,8 @@
 
                 <div class="prod-admin-formulario__grade prod-admin-formulario__grade--tres">
                     <label>
-                        <span>SKU</span>
-                        <input id="variante-sku" type="text" minlength="2" maxlength="80" required>
+                        <span>SKU gerado automaticamente</span>
+                        <input id="variante-sku" type="text" readonly>
                     </label>
                     <label>
                         <span>Tamanho</span>

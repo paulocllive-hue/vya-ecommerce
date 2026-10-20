@@ -3,6 +3,7 @@ import { AppError } from "../../errors/app-error.js";
 import {
     validarAtualizacaoProduto,
     validarAtualizacaoVariante,
+    validarConsultaProximoSku,
     validarCriacaoProduto,
     validarCriacaoVariante,
     validarProdutoId,
@@ -14,7 +15,10 @@ import {
     criarVariante,
     editarProduto,
     editarVariante,
-    obterProdutosAdmin
+    obterCategoriasProduto,
+    obterProximoSku,
+    obterProdutosAdmin,
+    removerProduto
 } from "./admin-products.service.js";
 
 
@@ -41,7 +45,31 @@ export async function listarProdutos(
     return resposta.status(200).json({
         success: true,
         message: "Produtos administrativos consultados.",
-        data: { produtos }
+        data: {
+            produtos,
+            categorias: obterCategoriasProduto()
+        }
+    });
+}
+
+
+export async function consultarProximoSku(
+    requisicao,
+    resposta
+) {
+    const consulta = exigirValidacao(
+        validarConsultaProximoSku(requisicao.query),
+        "Selecione uma categoria válida para gerar o SKU."
+    );
+
+    const sku = await obterProximoSku(
+        consulta.categoria
+    );
+
+    return resposta.status(200).json({
+        success: true,
+        message: "Próximo SKU calculado com sucesso.",
+        data: { sku }
     });
 }
 
@@ -87,6 +115,27 @@ export async function atualizarProduto(
     return resposta.status(200).json({
         success: true,
         message: "Produto atualizado com sucesso.",
+        data: { produto }
+    });
+}
+
+
+export async function excluirProduto(
+    requisicao,
+    resposta
+) {
+    const parametros = exigirValidacao(
+        validarProdutoId(requisicao.params),
+        "O identificador do produto é inválido."
+    );
+
+    const produto = await removerProduto(
+        parametros.produtoId
+    );
+
+    return resposta.status(200).json({
+        success: true,
+        message: "Produto excluído definitivamente.",
         data: { produto }
     });
 }

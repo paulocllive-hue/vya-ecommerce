@@ -12,6 +12,8 @@ import {
     atualizarVariante,
     cadastrarProduto,
     cadastrarVariante,
+    consultarProximoSku,
+    excluirProduto,
     listarProdutos
 } from "./admin-products.controller.js";
 
@@ -25,8 +27,13 @@ adminProductsRoutes.use(
 );
 
 adminProductsRoutes.get("/", listarProdutos);
+adminProductsRoutes.get(
+    "/proximo-sku",
+    consultarProximoSku
+);
 adminProductsRoutes.post("/", cadastrarProduto);
 adminProductsRoutes.patch("/:produtoId", atualizarProduto);
+adminProductsRoutes.delete("/:produtoId", excluirProduto);
 adminProductsRoutes.post(
     "/:produtoId/variantes",
     cadastrarVariante

@@ -5,6 +5,9 @@
         "http://localhost:3000/api/produtos";
     const URL_API_CARRINHO =
         "http://localhost:3000/api/carrinho/itens";
+    const CANAL_CATALOGO = "vya-catalogo";
+    const CHAVE_CATALOGO_ATUALIZADO =
+        "vyaCatalogoAtualizadoEm";
 
     const moeda = new Intl.NumberFormat("pt-BR", {
         style: "currency",
@@ -18,8 +21,13 @@
     }
 
     const estado = {
-        adicionando: new Set()
+        adicionando: new Set(),
+        carregando: false,
+        ultimaAtualizacao: 0
     };
+    const canalCatalogo = "BroadcastChannel" in window
+        ? new BroadcastChannel(CANAL_CATALOGO)
+        : null;
 
     function criarElemento(tag, classe, texto) {
         const elemento = document.createElement(tag);
@@ -46,6 +54,7 @@
     async function buscarProdutos() {
         const resposta = await fetch(URL_API_PRODUTOS, {
             credentials: "include",
+            cache: "no-store",
             headers: {
                 Accept: "application/json"
             }
@@ -95,19 +104,6 @@
         ) ?? produto.variantes[0] ?? null;
     }
 
-    function textoVariante(variante) {
-        const detalhes = [
-            variante.tamanho,
-            variante.cor
-        ].filter(Boolean).join(" • ");
-
-        if (!variante.disponivel) {
-            return `${detalhes} — esgotado`;
-        }
-
-        return `${detalhes} — ${moeda.format(variante.preco)}`;
-    }
-
     function criarImagem(produto, variante) {
         const area = criarElemento(
             "div",
@@ -149,8 +145,283 @@
         };
     }
 
+    function abrirSeletorProduto(produto) {
+        const variantes = produto.variantes;
+        const primeiraDisponivel = varianteSelecionavel(produto);
+        let corAtual = primeiraDisponivel?.cor ??
+            variantes[0]?.cor ?? "";
+        let varianteAtual = primeiraDisponivel;
+
+        const modal = criarElemento(
+            "div",
+            "produto-seletor-modal"
+        );
+        const fundo = criarElemento(
+            "button",
+            "produto-seletor-modal__fundo"
+        );
+        const janela = criarElemento(
+            "section",
+            "produto-seletor-modal__janela"
+        );
+        const fecharBotao = criarElemento(
+            "button",
+            "produto-seletor-modal__fechar",
+            "×"
+        );
+        const gradeModal = criarElemento(
+            "div",
+            "produto-seletor-modal__grade"
+        );
+        const imagem = criarImagem(produto, varianteAtual);
+        const conteudo = criarElemento(
+            "div",
+            "produto-seletor-modal__conteudo"
+        );
+        const categoria = criarElemento(
+            "p",
+            "produto-categoria",
+            produto.categoria
+        );
+        const titulo = criarElemento("h2", "", produto.nome);
+        const descricao = criarElemento(
+            "p",
+            "produto-descricao",
+            produto.descricao || "Escolha a opção desejada."
+        );
+        const legendaCor = criarElemento(
+            "strong",
+            "produto-seletor-modal__legenda",
+            "Cor"
+        );
+        const coresArea = criarElemento(
+            "div",
+            "produto-seletor-cores"
+        );
+        const tamanhosGrupo = criarElemento(
+            "label",
+            "produto-seletor-tamanhos"
+        );
+        const tamanhosLegenda = criarElemento(
+            "span",
+            "",
+            "Tamanho"
+        );
+        const tamanhos = document.createElement("select");
+        const preco = criarElemento("p", "preco");
+        const estoque = criarElemento("p", "produto-estoque");
+        const mensagem = criarElemento(
+            "p",
+            "produto-mensagem"
+        );
+        const adicionar = criarElemento(
+            "button",
+            "botao botao--principal",
+            "Adicionar ao carrinho"
+        );
+
+        fundo.type = "button";
+        fundo.setAttribute("aria-label", "Fechar seleção");
+        fecharBotao.type = "button";
+        fecharBotao.setAttribute("aria-label", "Fechar");
+        adicionar.type = "button";
+        janela.setAttribute("role", "dialog");
+        janela.setAttribute("aria-modal", "true");
+        janela.setAttribute(
+            "aria-label",
+            `Escolher opções de ${produto.nome}`
+        );
+        imagem.area.classList.add(
+            "produto-seletor-modal__imagem"
+        );
+
+        const cores = [...new Set(
+            variantes.map((variante) => variante.cor)
+        )];
+
+        function fechar() {
+            modal.remove();
+            document.body.classList.remove(
+                "produto-seletor-aberto"
+            );
+        }
+
+        function atualizarDetalhes() {
+            preco.textContent = varianteAtual
+                ? moeda.format(varianteAtual.preco)
+                : "Indisponível";
+            estoque.textContent = !varianteAtual
+                ? "Opção indisponível"
+                : varianteAtual.disponivel
+                    ? `${varianteAtual.estoque} em estoque`
+                    : "Esta opção está esgotada";
+            estoque.dataset.disponivel =
+                varianteAtual?.disponivel ? "true" : "false";
+            adicionar.disabled = !varianteAtual?.disponivel;
+            adicionar.textContent = varianteAtual?.disponivel
+                ? "Adicionar ao carrinho"
+                : "Opção esgotada";
+            imagem.atualizarImagem(varianteAtual?.imagemUrl);
+            mensagem.textContent = "";
+        }
+
+        function atualizarTamanhos() {
+            const variantesDaCor = variantes.filter(
+                (variante) => variante.cor === corAtual
+            );
+            varianteAtual = variantesDaCor.find(
+                (variante) => variante.disponivel
+            ) ?? variantesDaCor[0] ?? null;
+
+            tamanhos.replaceChildren();
+
+            variantesDaCor.forEach((variante) => {
+                const opcao = document.createElement("option");
+                opcao.value = variante.id;
+                opcao.textContent = variante.disponivel
+                    ? variante.tamanho
+                    : `${variante.tamanho} — esgotado`;
+                opcao.disabled = !variante.disponivel;
+                opcao.selected =
+                    variante.id === varianteAtual?.id;
+                tamanhos.append(opcao);
+            });
+
+            atualizarDetalhes();
+        }
+
+        cores.forEach((cor) => {
+            const variantesDaCor = variantes.filter(
+                (variante) => variante.cor === cor
+            );
+            const possuiEstoque = variantesDaCor.some(
+                (variante) => variante.disponivel
+            );
+            const botaoCor = criarElemento(
+                "button",
+                "produto-seletor-cor",
+                cor
+            );
+
+            botaoCor.type = "button";
+            botaoCor.disabled = !possuiEstoque;
+            botaoCor.dataset.selecionada = String(
+                cor === corAtual
+            );
+            botaoCor.addEventListener("click", () => {
+                corAtual = cor;
+                coresArea.querySelectorAll("button")
+                    .forEach((botao) => {
+                        botao.dataset.selecionada = String(
+                            botao === botaoCor
+                        );
+                    });
+                atualizarTamanhos();
+            });
+            coresArea.append(botaoCor);
+        });
+
+        tamanhos.addEventListener("change", () => {
+            varianteAtual = variantes.find(
+                (variante) => variante.id === tamanhos.value
+            ) ?? null;
+            atualizarDetalhes();
+        });
+
+        adicionar.addEventListener("click", async () => {
+            if (
+                !varianteAtual?.disponivel ||
+                estado.adicionando.has(varianteAtual.id)
+            ) {
+                return;
+            }
+
+            const varianteId = varianteAtual.id;
+            estado.adicionando.add(varianteId);
+            adicionar.disabled = true;
+            adicionar.textContent = "Adicionando...";
+
+            try {
+                const resultado = await adicionarAoCarrinho(
+                    varianteId
+                );
+
+                window.CarrinhoVya?.atualizarContador?.(
+                    resultado?.data?.carrinho
+                );
+
+                if (window.CarrinhoVya?.recarregar) {
+                    await window.CarrinhoVya.recarregar();
+                }
+
+                mensagem.textContent =
+                    "Produto adicionado ao carrinho.";
+                mensagem.dataset.tipo = "sucesso";
+                adicionar.textContent = "Adicionado";
+                window.setTimeout(fechar, 650);
+            } catch (erro) {
+                if (erro.status === 401) {
+                    fechar();
+                    document.querySelector("#botao-conta")?.click();
+                    return;
+                }
+
+                mensagem.textContent = erro.message;
+                mensagem.dataset.tipo = "erro";
+                adicionar.disabled = false;
+                adicionar.textContent =
+                    "Adicionar ao carrinho";
+            } finally {
+                estado.adicionando.delete(varianteId);
+            }
+        });
+
+        fundo.addEventListener("click", fechar);
+        fecharBotao.addEventListener("click", fechar);
+
+        tamanhosGrupo.append(tamanhosLegenda, tamanhos);
+        conteudo.append(
+            categoria,
+            titulo,
+            descricao,
+            legendaCor,
+            coresArea,
+            tamanhosGrupo,
+            preco,
+            estoque,
+            adicionar,
+            mensagem
+        );
+        gradeModal.append(imagem.area, conteudo);
+        janela.append(fecharBotao, gradeModal);
+        modal.append(fundo, janela);
+        document.body.append(modal);
+        document.body.classList.add("produto-seletor-aberto");
+        atualizarTamanhos();
+        fecharBotao.focus();
+
+        modal.addEventListener("keydown", (evento) => {
+            if (evento.key === "Escape") {
+                fechar();
+            }
+        });
+    }
+
     function criarCard(produto) {
-        let varianteAtual = varianteSelecionavel(produto);
+        const varianteAtual = varianteSelecionavel(produto);
+        const variantesDisponiveis = produto.variantes.filter(
+            (variante) => variante.disponivel
+        );
+        const precos = variantesDisponiveis.map(
+            (variante) => variante.preco
+        );
+        const menorPreco = precos.length
+            ? Math.min(...precos)
+            : null;
+        const estoqueTotal = produto.variantes.reduce(
+            (total, variante) => total + variante.estoque,
+            0
+        );
         const card = criarElemento("article", "produto-card");
         const imagem = criarImagem(produto, varianteAtual);
         const conteudo = criarElemento("div", "produto-info");
@@ -168,141 +439,45 @@
         const preco = criarElemento(
             "p",
             "preco",
-            varianteAtual
-                ? moeda.format(varianteAtual.preco)
+            menorPreco !== null
+                ? `${precos.some((valor) => valor !== menorPreco)
+                    ? "A partir de "
+                    : ""}${moeda.format(menorPreco)}`
                 : "Indisponível"
         );
-        const estoque = criarElemento("p", "produto-estoque");
-        const mensagem = criarElemento(
+        const estoque = criarElemento(
             "p",
-            "produto-mensagem"
+            "produto-estoque",
+            estoqueTotal > 0
+                ? `${estoqueTotal} em estoque`
+                : "Produto esgotado"
         );
         const botao = criarElemento(
             "button",
             "botao botao--principal",
-            "Adicionar ao carrinho"
+            variantesDisponiveis.length
+                ? "Escolher cor e tamanho"
+                : "Esgotado"
         );
 
         botao.type = "button";
-
-        function atualizarVariante(variante) {
-            varianteAtual = variante;
-            preco.textContent = variante
-                ? moeda.format(variante.preco)
-                : "Indisponível";
-            estoque.textContent = !variante
-                ? "Nenhuma variação disponível"
-                : variante.disponivel
-                    ? `${variante.estoque} em estoque`
-                    : "Produto esgotado";
-            estoque.dataset.disponivel =
-                variante?.disponivel ? "true" : "false";
-            botao.disabled = !variante?.disponivel;
-            botao.textContent = variante?.disponivel
-                ? "Adicionar ao carrinho"
-                : "Esgotado";
-            mensagem.textContent = "";
-            imagem.atualizarImagem(variante?.imagemUrl);
-        }
-
-        conteudo.append(categoria, titulo, descricao);
-
-        if (produto.variantes.length > 1) {
-            const grupo = criarElemento(
-                "label",
-                "produto-variacao"
-            );
-            const legenda = criarElemento(
-                "span",
-                "",
-                "Escolha a opção"
-            );
-            const seletor = document.createElement("select");
-
-            seletor.setAttribute(
-                "aria-label",
-                `Escolha a variação de ${produto.nome}`
-            );
-
-            produto.variantes.forEach((variante) => {
-                const opcao = document.createElement("option");
-                opcao.value = variante.id;
-                opcao.textContent = textoVariante(variante);
-                opcao.disabled = !variante.disponivel;
-                opcao.selected = variante.id === varianteAtual?.id;
-                seletor.append(opcao);
-            });
-
-            seletor.addEventListener("change", () => {
-                const escolhida = produto.variantes.find(
-                    (variante) => variante.id === seletor.value
-                );
-
-                atualizarVariante(escolhida ?? null);
-            });
-
-            grupo.append(legenda, seletor);
-            conteudo.append(grupo);
-        } else if (varianteAtual) {
-            conteudo.append(
-                criarElemento(
-                    "p",
-                    "produto-opcao-unica",
-                    [varianteAtual.tamanho, varianteAtual.cor]
-                        .filter(Boolean)
-                        .join(" • ")
-                )
-            );
-        }
-
-        botao.addEventListener("click", async () => {
-            if (
-                !varianteAtual?.disponivel ||
-                estado.adicionando.has(varianteAtual.id)
-            ) {
-                return;
-            }
-
-            const varianteId = varianteAtual.id;
-            estado.adicionando.add(varianteId);
-            botao.disabled = true;
-            botao.textContent = "Adicionando...";
-            mensagem.textContent = "";
-
-            try {
-                const resultado = await adicionarAoCarrinho(varianteId);
-                mensagem.textContent =
-                    "Produto adicionado ao carrinho.";
-                mensagem.dataset.tipo = "sucesso";
-
-                window.CarrinhoVya?.atualizarContador?.(
-                    resultado?.data?.carrinho
-                );
-
-                if (window.CarrinhoVya?.recarregar) {
-                    await window.CarrinhoVya.recarregar();
-                }
-            } catch (erro) {
-                if (erro.status === 401) {
-                    document.querySelector("#botao-conta")?.click();
-                }
-
-                mensagem.textContent = erro.status === 401
-                    ? "Entre na sua conta para adicionar ao carrinho."
-                    : erro.message;
-                mensagem.dataset.tipo = "erro";
-            } finally {
-                estado.adicionando.delete(varianteId);
-                botao.disabled = !varianteAtual?.disponivel;
-                botao.textContent = varianteAtual?.disponivel
-                    ? "Adicionar ao carrinho"
-                    : "Esgotado";
-            }
+        botao.disabled = variantesDisponiveis.length === 0;
+        estoque.dataset.disponivel = String(
+            estoqueTotal > 0
+        );
+        botao.addEventListener("click", () => {
+            abrirSeletorProduto(produto);
         });
 
-        conteudo.append(preco, estoque, botao, mensagem);
+        conteudo.append(
+            categoria,
+            titulo,
+            descricao,
+            preco,
+            estoque,
+            botao
+        );
         card.append(imagem.area, conteudo);
-        atualizarVariante(varianteAtual);
 
         return card;
     }
@@ -332,8 +507,16 @@
         grade.replaceChildren(bloco);
     }
 
-    async function carregar() {
-        mostrarCarregamento();
+    async function carregar(mostrarEstado = true) {
+        if (estado.carregando) {
+            return;
+        }
+
+        estado.carregando = true;
+
+        if (mostrarEstado) {
+            mostrarCarregamento();
+        }
 
         try {
             const produtos = await buscarProdutos();
@@ -352,8 +535,13 @@
             grade.replaceChildren(
                 ...produtos.map(criarCard)
             );
+            estado.ultimaAtualizacao = Date.now();
         } catch (erro) {
-            mostrarErro(erro.message);
+            if (mostrarEstado || !grade.children.length) {
+                mostrarErro(erro.message);
+            }
+        } finally {
+            estado.carregando = false;
         }
     }
 
@@ -366,5 +554,32 @@
             "Escolha seu produto e a variação desejada. Preços e estoque são atualizados diretamente pelo painel da VYA.";
     }
 
-    carregar();
+    canalCatalogo?.addEventListener("message", (evento) => {
+        if (evento.data?.tipo === "catalogo-atualizado") {
+            carregar(false);
+        }
+    });
+
+    window.addEventListener("storage", (evento) => {
+        if (evento.key === CHAVE_CATALOGO_ATUALIZADO) {
+            carregar(false);
+        }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+        if (
+            document.visibilityState === "visible" &&
+            Date.now() - estado.ultimaAtualizacao > 1000
+        ) {
+            carregar(false);
+        }
+    });
+
+    window.addEventListener("pageshow", (evento) => {
+        if (evento.persisted) {
+            carregar(false);
+        }
+    });
+
+    carregar(true);
 })();

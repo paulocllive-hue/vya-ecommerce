@@ -8,11 +8,22 @@ import {
     atualizarVariante,
     buscarProdutoAdmin,
     buscarVarianteAdmin,
+    contarItensPedidoDoProduto,
+    excluirItensCarrinhoDoProduto,
+    excluirProdutoPorId,
+    excluirVariantesDoProduto,
     inserirProduto,
     inserirVariante,
     listarProdutosAdmin,
+    listarSkusPorPrefixo,
     listarVariantesAdmin
 } from "./admin-products.repository.js";
+
+import {
+    calcularProximoSku,
+    CATEGORIAS_PRODUTO,
+    obterPrefixoSku
+} from "./admin-products.categories.js";
 
 
 function montarVariante(linha) {
@@ -58,14 +69,58 @@ function montarProduto(linha, variantes = []) {
 
 function tratarDuplicidade(erro) {
     if (erro.code === "ER_DUP_ENTRY") {
+        const mensagemBanco = String(
+            erro.sqlMessage ?? erro.message ?? ""
+        ).toLowerCase();
+
+        if (mensagemBanco.includes("sku")) {
+            throw new AppError(
+                "O SKU calculado já está ocupado. Atualize o painel e tente salvar novamente.",
+                409,
+                "SKU_DUPLICADO"
+            );
+        }
+
         throw new AppError(
-            "Já existe uma variante com este SKU ou com a mesma combinação de tamanho e cor.",
+            "Este produto já possui uma variação com o mesmo tamanho e a mesma cor.",
             409,
-            "VARIANTE_DUPLICADA"
+            "OPCAO_DE_VARIANTE_DUPLICADA"
         );
     }
 
     throw erro;
+}
+
+
+async function gerarProximoSku(
+    categoria,
+    executor = pool,
+    bloquear = false
+) {
+    const prefixo = obterPrefixoSku(categoria);
+
+    if (!prefixo) {
+        throw new AppError(
+            "A categoria informada não possui uma regra de SKU.",
+            422,
+            "CATEGORIA_SEM_REGRA_DE_SKU"
+        );
+    }
+
+    const skusExistentes = await listarSkusPorPrefixo(
+        prefixo,
+        executor,
+        bloquear
+    );
+    return calcularProximoSku(
+        prefixo,
+        skusExistentes
+    );
+}
+
+
+export async function obterProximoSku(categoria) {
+    return gerarProximoSku(categoria);
 }
 
 
@@ -98,6 +153,13 @@ export async function obterProdutosAdmin() {
 }
 
 
+export function obterCategoriasProduto() {
+    return CATEGORIAS_PRODUTO.map(
+        (categoria) => ({ ...categoria })
+    );
+}
+
+
 export async function criarProduto(dados) {
     const conexao = await pool.getConnection();
     const produtoId = randomUUID();
@@ -120,7 +182,13 @@ export async function criarProduto(dados) {
             {
                 id: randomUUID(),
                 produtoId,
-                ...dados.varianteInicial
+                ...dados.varianteInicial,
+                cor: "Padrão",
+                sku: await gerarProximoSku(
+                    dados.categoria,
+                    conexao,
+                    true
+                )
             },
             conexao
         );
@@ -224,7 +292,12 @@ export async function criarVariante(
             {
                 id: varianteId,
                 produtoId,
-                ...dados
+                ...dados,
+                sku: await gerarProximoSku(
+                    produto.categoria,
+                    conexao,
+                    true
+                )
             },
             conexao
         );
@@ -243,6 +316,70 @@ export async function criarVariante(
             varianteId
         )
     );
+}
+
+
+export async function removerProduto(produtoId) {
+    const conexao = await pool.getConnection();
+    let produtoExcluido = null;
+
+    try {
+        await conexao.beginTransaction();
+
+        const produto = await buscarProdutoAdmin(
+            produtoId,
+            conexao,
+            true
+        );
+
+        if (!produto) {
+            throw new AppError(
+                "Produto não encontrado.",
+                404,
+                "PRODUTO_NAO_ENCONTRADO"
+            );
+        }
+
+        const totalEmPedidos =
+            await contarItensPedidoDoProduto(
+                produtoId,
+                conexao
+            );
+
+        if (totalEmPedidos > 0) {
+            throw new AppError(
+                "Este produto já faz parte de um pedido e não pode ser apagado. Inative o produto para removê-lo da loja sem perder o histórico da venda.",
+                409,
+                "PRODUTO_POSSUI_PEDIDOS"
+            );
+        }
+
+        await excluirItensCarrinhoDoProduto(
+            produtoId,
+            conexao
+        );
+        await excluirVariantesDoProduto(
+            produtoId,
+            conexao
+        );
+        await excluirProdutoPorId(
+            produtoId,
+            conexao
+        );
+
+        await conexao.commit();
+        produtoExcluido = {
+            id: produto.id,
+            nome: produto.nome
+        };
+    } catch (erro) {
+        await conexao.rollback();
+        throw erro;
+    } finally {
+        conexao.release();
+    }
+
+    return produtoExcluido;
 }
 
 

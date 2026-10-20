@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+import {
+    NOMES_CATEGORIAS_PRODUTO
+} from "./admin-products.categories.js";
+
 
 const identificadorUuid = z
     .string({ error: "O identificador deve ser um texto." })
@@ -13,6 +17,14 @@ const texto = (nome, minimo, maximo) => z
     .min(minimo, `${nome} deve possuir pelo menos ${minimo} caracteres.`)
     .max(maximo, `${nome} deve possuir no máximo ${maximo} caracteres.`)
     .transform((valor) => valor.replace(/\s+/g, " "));
+
+
+const categoriaProduto = z.enum(
+    NOMES_CATEGORIAS_PRODUTO,
+    {
+        error: "Selecione uma categoria válida."
+    }
+);
 
 
 const descricaoBase = z
@@ -42,7 +54,8 @@ const imagemUrlBase = z
 
 const varianteBase = {
     sku: texto("O SKU", 2, 80)
-        .transform((valor) => valor.toUpperCase()),
+        .transform((valor) => valor.toUpperCase())
+        .optional(),
     tamanho: texto("O tamanho", 1, 50),
     cor: texto("A cor", 1, 80),
     preco: z
@@ -66,21 +79,39 @@ const varianteCriacaoSchema = z.strictObject(
 );
 
 
+const varianteInicialSchema = z.strictObject({
+    tamanho: varianteBase.tamanho,
+    preco: varianteBase.preco,
+    estoque: varianteBase.estoque,
+    imagemUrl: varianteBase.imagemUrl,
+    ativo: varianteBase.ativo,
+
+    /*
+        Mantidos como opcionais apenas para aceitar
+        páginas antigas que ainda estejam no cache.
+        O backend não utiliza estes dois valores no
+        cadastro inicial.
+    */
+    sku: varianteBase.sku,
+    cor: varianteBase.cor.optional()
+});
+
+
 const produtoCriacaoSchema = z.strictObject({
     nome: texto("O nome", 2, 150),
-    categoria: texto("A categoria", 2, 80),
+    categoria: categoriaProduto,
     descricao: descricaoBase.optional().default(null),
     ativo: z
         .boolean({ error: "O campo ativo deve ser verdadeiro ou falso." })
         .default(true),
-    varianteInicial: varianteCriacaoSchema
+    varianteInicial: varianteInicialSchema
 });
 
 
 const produtoAtualizacaoSchema = z
     .strictObject({
         nome: texto("O nome", 2, 150).optional(),
-        categoria: texto("A categoria", 2, 80).optional(),
+        categoria: categoriaProduto.optional(),
         descricao: descricaoBase.optional(),
         ativo: z.boolean({
             error: "O campo ativo deve ser verdadeiro ou falso."
@@ -113,6 +144,11 @@ const produtoIdSchema = z.strictObject({
 });
 
 
+const proximoSkuSchema = z.strictObject({
+    categoria: categoriaProduto
+});
+
+
 const varianteIdSchema = z.strictObject({
     produtoId: identificadorUuid,
     varianteId: identificadorUuid
@@ -136,3 +172,6 @@ export const validarProdutoId = (dados) =>
 
 export const validarVarianteId = (dados) =>
     varianteIdSchema.safeParse(dados);
+
+export const validarConsultaProximoSku = (dados) =>
+    proximoSkuSchema.safeParse(dados);

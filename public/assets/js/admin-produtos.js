@@ -41,13 +41,22 @@
 
     const estado = {
         produtos: [],
+        categorias: [],
         carregando: false
     };
+
+    const CANAL_CATALOGO = "vya-catalogo";
+    const CHAVE_CATALOGO_ATUALIZADO =
+        "vyaCatalogoAtualizadoEm";
+    const canalCatalogo = "BroadcastChannel" in window
+        ? new BroadcastChannel(CANAL_CATALOGO)
+        : null;
 
     async function chamarApi(caminho = "", opcoes = {}) {
         const resposta = await fetch(`${URL_API}${caminho}`, {
             ...opcoes,
             credentials: "include",
+            cache: "no-store",
             headers: {
                 Accept: "application/json",
                 ...(opcoes.body
@@ -119,12 +128,85 @@
         return document.querySelector(id);
     }
 
+    function notificarCatalogoAtualizado() {
+        const atualizadoEm = String(Date.now());
+
+        localStorage.setItem(
+            CHAVE_CATALOGO_ATUALIZADO,
+            atualizadoEm
+        );
+        canalCatalogo?.postMessage({
+            tipo: "catalogo-atualizado",
+            atualizadoEm
+        });
+    }
+
+    function preencherCategorias() {
+        const seletor = campo("#produto-categoria");
+        const valorAtual = seletor.value;
+        const placeholder = document.createElement("option");
+
+        placeholder.value = "";
+        placeholder.textContent = "Selecione uma categoria";
+        seletor.replaceChildren(placeholder);
+
+        estado.categorias.forEach((categoria) => {
+            const opcao = document.createElement("option");
+            opcao.value = categoria.nome;
+            opcao.textContent = categoria.nome;
+            seletor.append(opcao);
+        });
+
+        seletor.value = valorAtual;
+    }
+
+    async function consultarProximoSku(categoria) {
+        if (!categoria) {
+            return "";
+        }
+
+        const consulta = new URLSearchParams({ categoria });
+        const resultado = await chamarApi(
+            `/proximo-sku?${consulta.toString()}`
+        );
+
+        return resultado.data.sku;
+    }
+
+    async function atualizarSkuProduto() {
+        const categoria = campo("#produto-categoria").value;
+        const sku = campo("#produto-sku");
+
+        if (!categoria) {
+            sku.value = "";
+            sku.placeholder = "Selecione a categoria";
+            return;
+        }
+
+        sku.value = "Consultando...";
+
+        try {
+            const proximoSku = await consultarProximoSku(
+                categoria
+            );
+
+            if (campo("#produto-categoria").value === categoria) {
+                sku.value = proximoSku;
+            }
+        } catch (erro) {
+            sku.value = "";
+            sku.placeholder = "Não foi possível gerar";
+            elementos.mensagemProduto.textContent = erro.message;
+        }
+    }
+
     function abrirNovoProduto() {
         elementos.formProduto.reset();
         campo("#produto-id").value = "";
         campo("#produto-ativo").checked = true;
+        campo("#produto-categoria").value = "";
+        campo("#produto-sku").value = "";
         campo("#produto-tamanho").value = "Único";
-        campo("#produto-cor").value = "Padrão";
         elementos.varianteInicial.hidden = false;
         elementos.tituloProduto.textContent = "Novo produto";
         elementos.mensagemProduto.textContent = "";
@@ -153,11 +235,23 @@
         campo("#variante-tamanho").value = "Único";
         campo("#variante-cor").value = "Padrão";
         campo("#variante-ativo").checked = true;
+        campo("#variante-sku").value = "Consultando...";
         elementos.tituloVariante.textContent = "Nova variação";
         elementos.nomeProdutoVariante.textContent = produto.nome;
         elementos.mensagemVariante.textContent = "";
         abrirModal(elementos.modalVariante);
-        campo("#variante-sku").focus();
+        campo("#variante-tamanho").focus();
+
+        consultarProximoSku(produto.categoria)
+            .then((sku) => {
+                if (!campo("#variante-id").value) {
+                    campo("#variante-sku").value = sku;
+                }
+            })
+            .catch((erro) => {
+                campo("#variante-sku").value = "";
+                elementos.mensagemVariante.textContent = erro.message;
+            });
     }
 
     function abrirEdicaoVariante(produto, variante) {
@@ -175,7 +269,7 @@
         elementos.nomeProdutoVariante.textContent = produto.nome;
         elementos.mensagemVariante.textContent = "";
         abrirModal(elementos.modalVariante);
-        campo("#variante-sku").focus();
+        campo("#variante-tamanho").focus();
     }
 
     async function salvarProduto(evento) {
@@ -197,9 +291,7 @@
             const estoque = Number(estoqueTexto);
 
             if (
-                !campo("#produto-sku").value.trim() ||
                 !campo("#produto-tamanho").value.trim() ||
-                !campo("#produto-cor").value.trim() ||
                 !precoTexto || !estoqueTexto ||
                 !Number.isFinite(preco) || preco <= 0 ||
                 !Number.isInteger(estoque) || estoque < 0
@@ -210,9 +302,7 @@
             }
 
             dados.varianteInicial = {
-                sku: campo("#produto-sku").value,
                 tamanho: campo("#produto-tamanho").value,
-                cor: campo("#produto-cor").value,
                 preco,
                 estoque,
                 imagemUrl: campo("#produto-imagem").value || null,
@@ -234,6 +324,7 @@
 
             fecharModal(elementos.modalProduto);
             await carregarProdutos(false);
+            notificarCatalogoAtualizado();
             mostrarMensagem(
                 produtoId
                     ? "Produto atualizado com sucesso."
@@ -269,7 +360,6 @@
         }
 
         const dados = {
-            sku: campo("#variante-sku").value,
             tamanho: campo("#variante-tamanho").value,
             cor: campo("#variante-cor").value,
             preco,
@@ -295,6 +385,7 @@
 
             fecharModal(elementos.modalVariante);
             await carregarProdutos(false);
+            notificarCatalogoAtualizado();
             mostrarMensagem(
                 varianteId
                     ? "Variação atualizada com sucesso."
@@ -305,6 +396,37 @@
             elementos.mensagemVariante.textContent = erro.message;
         } finally {
             botao.disabled = false;
+        }
+    }
+
+    async function excluirProduto(produto) {
+        const confirmou = window.confirm(
+            `Deseja excluir definitivamente "${produto.nome}"?\n\n` +
+            "As variações e os itens desse produto em carrinhos também serão removidos. Esta ação não poderá ser desfeita."
+        );
+
+        if (!confirmou) {
+            return;
+        }
+
+        mostrarMensagem(
+            `Excluindo ${produto.nome}...`
+        );
+
+        try {
+            await chamarApi(
+                `/${encodeURIComponent(produto.id)}`,
+                { method: "DELETE" }
+            );
+
+            await carregarProdutos(false);
+            notificarCatalogoAtualizado();
+            mostrarMensagem(
+                "Produto excluído do banco e removido da loja.",
+                "sucesso"
+            );
+        } catch (erro) {
+            mostrarMensagem(erro.message, "erro");
         }
     }
 
@@ -402,9 +524,17 @@
         const adicionar = document.createElement("button");
         adicionar.type = "button";
         adicionar.className = "prod-admin-botao prod-admin-botao--principal";
-        adicionar.textContent = "Nova variação";
+        adicionar.textContent = "Adicionar cor/tamanho";
         adicionar.addEventListener("click", () => abrirNovaVariante(produto));
-        acoes.append(editar, adicionar);
+        const excluir = document.createElement("button");
+        excluir.type = "button";
+        excluir.className =
+            "prod-admin-botao prod-admin-botao--perigo";
+        excluir.textContent = "Excluir";
+        excluir.addEventListener("click", () => {
+            excluirProduto(produto);
+        });
+        acoes.append(editar, adicionar, excluir);
 
         resumo.append(imagem, texto, numeros, acoes);
 
@@ -499,6 +629,8 @@
         try {
             const resultado = await chamarApi();
             estado.produtos = resultado.data.produtos;
+            estado.categorias = resultado.data.categorias ?? [];
+            preencherCategorias();
             atualizarIndicadores();
             renderizar();
             elementos.carregamento.hidden = true;
@@ -518,6 +650,10 @@
     elementos.filtroAtivo.addEventListener("change", renderizar);
     elementos.formProduto.addEventListener("submit", salvarProduto);
     elementos.formVariante.addEventListener("submit", salvarVariante);
+    campo("#produto-categoria").addEventListener(
+        "change",
+        atualizarSkuProduto
+    );
 
     document.querySelectorAll("[data-fechar-modal-produto]")
         .forEach((elemento) => elemento.addEventListener(

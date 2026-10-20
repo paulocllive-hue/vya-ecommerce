@@ -102,6 +102,18 @@
     color: #062a4a;
 }
 
+.prod-admin-botao--perigo {
+    background: #ffffff;
+    border-color: #e3a3af;
+    color: #a5223d;
+}
+
+.prod-admin-botao--perigo:hover:not(:disabled) {
+    background: #a5223d;
+    border-color: #a5223d;
+    color: #ffffff;
+}
+
 .prod-admin-botao--pequeno {
     min-height: 34px;
     padding: 6px 12px;
@@ -196,6 +208,7 @@
 .prod-admin-filtros input,
 .prod-admin-filtros select,
 .prod-admin-formulario input,
+.prod-admin-formulario select,
 .prod-admin-formulario textarea {
     background: #ffffff;
     border: 1px solid #c3d0cc;
@@ -214,10 +227,17 @@
 .prod-admin-filtros input:focus,
 .prod-admin-filtros select:focus,
 .prod-admin-formulario input:focus,
+.prod-admin-formulario select:focus,
 .prod-admin-formulario textarea:focus {
     border-color: #00a896;
     box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.14);
     outline: none;
+}
+
+.prod-admin-formulario input[readonly] {
+    background: #eef3f1;
+    color: #53676f;
+    cursor: default;
 }
 
 .prod-admin-mensagem,
