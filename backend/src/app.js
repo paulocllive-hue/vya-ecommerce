@@ -9,6 +9,7 @@ import { AppError } from "./errors/app-error.js";
 import { tratarErros } from "./middlewares/error.middleware.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
+import checkoutRoutes from "./modules/checkout/checkout.routes.js";
 import publicConfigRoutes from "./modules/config/public-config.routes.js";
 
 
@@ -190,6 +191,14 @@ app.use(
 app.use(
     "/api/carrinho",
     cartRoutes
+);
+
+/*
+    Endereços e finalização dos pedidos.
+*/
+app.use(
+    "/api/checkout",
+    checkoutRoutes
 );
 
 /*

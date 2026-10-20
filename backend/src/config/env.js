@@ -130,7 +130,26 @@ const esquemaAmbiente = z.object({
         .string()
         .trim()
         .min(20)
-        .endsWith(".apps.googleusercontent.com")    
+        .endsWith(".apps.googleusercontent.com"),
+
+    /*
+        Integração futura com a Google Routes API.
+
+        As duas variáveis são opcionais para que
+        o backend continue funcionando enquanto
+        a integração de distância não for ativada.
+    */
+    GOOGLE_MAPS_API_KEY: z
+        .string()
+        .trim()
+        .min(20)
+        .optional(),
+
+    ENTREGA_ENDERECO_ORIGEM: z
+        .string()
+        .trim()
+        .min(10)
+        .optional()
 });
 
 
