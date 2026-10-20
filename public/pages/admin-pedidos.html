@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <meta
+        name="description"
+        content="Painel administrativo de pedidos da Vya."
+    >
+
+    <title>Administrar pedidos | Vya</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/auth-modal.css">
+    <link rel="stylesheet" href="../assets/css/carrinho.css">
+    <link rel="stylesheet" href="../assets/css/admin-pedidos.css">
+
+    <script src="../assets/js/main.js" defer></script>
+    <script src="../assets/js/carrinho.js" defer></script>
+    <script src="../assets/js/auth-modal.js" defer></script>
+    <script src="../assets/js/admin-pedidos.js" defer></script>
+</head>
+
+<body>
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a
+                class="logo-cabeca"
+                href="../index.html"
+                aria-label="Página inicial da Vya"
+            >
+                <img
+                    class="logo-imagem"
+                    src="../images/logo/Vya vetorizada formato SVG.svg"
+                    alt="Vya"
+                >
+            </a>
+
+            <button
+                class="menu-botao"
+                id="menu-botao"
+                type="button"
+                aria-label="Abrir menu"
+                aria-expanded="false"
+                aria-controls="menu-principal"
+            >
+                ☰
+            </button>
+
+            <nav
+                class="menu"
+                id="menu-principal"
+                aria-label="Navegação principal"
+            >
+                <a href="../index.html">Início</a>
+                <a href="produtos.html">Produtos</a>
+                <a href="pedidos.html">Meus pedidos</a>
+                <a
+                    class="conta-link"
+                    id="botao-conta"
+                    href="login.html"
+                >
+                    Entrar / Cadastrar
+                </a>
+            </nav>
+
+            <a class="carrinho-link" href="carrinho.html">
+                Carrinho
+                <span id="quantidade-carrinho">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="admin-pagina">
+        <section class="admin-topo">
+            <div class="container admin-topo__conteudo">
+                <div>
+                    <span class="admin-etiqueta">Administração</span>
+                    <h1>Pedidos da VYA</h1>
+                    <p>
+                        Consulte as vendas e avance cada pedido
+                        com segurança até a retirada ou entrega.
+                    </p>
+                </div>
+
+                <button
+                    class="admin-botao admin-botao--claro"
+                    id="admin-atualizar"
+                    type="button"
+                >
+                    Atualizar pedidos
+                </button>
+            </div>
+        </section>
+
+        <section
+            class="container admin-estado"
+            id="admin-carregamento"
+            aria-live="polite"
+        >
+            <span class="admin-carregando" aria-hidden="true"></span>
+            Carregando os pedidos...
+        </section>
+
+        <section
+            class="container admin-estado admin-estado--erro"
+            id="admin-erro"
+            hidden
+        >
+            <h2 id="admin-erro-titulo">
+                Não foi possível abrir o painel
+            </h2>
+            <p id="admin-erro-texto"></p>
+            <button
+                class="admin-botao admin-botao--principal"
+                id="admin-tentar-novamente"
+                type="button"
+            >
+                Tentar novamente
+            </button>
+        </section>
+
+        <section
+            class="container admin-conteudo"
+            id="admin-conteudo"
+            hidden
+        >
+            <div class="admin-indicadores" aria-label="Resumo dos pedidos">
+                <article class="admin-indicador">
+                    <span>Total de pedidos</span>
+                    <strong id="admin-total">0</strong>
+                </article>
+                <article class="admin-indicador">
+                    <span>Aguardando pagamento</span>
+                    <strong id="admin-pendentes">0</strong>
+                </article>
+                <article class="admin-indicador">
+                    <span>Em andamento</span>
+                    <strong id="admin-andamento">0</strong>
+                </article>
+                <article class="admin-indicador">
+                    <span>Concluídos</span>
+                    <strong id="admin-concluidos">0</strong>
+                </article>
+            </div>
+
+            <div class="admin-filtros">
+                <label class="admin-campo admin-campo--busca">
+                    <span>Buscar</span>
+                    <input
+                        id="admin-busca"
+                        type="search"
+                        placeholder="Número, cliente ou e-mail"
+                    >
+                </label>
+
+                <label class="admin-campo">
+                    <span>Status</span>
+                    <select id="admin-filtro-status">
+                        <option value="">Todos</option>
+                        <option value="aguardando_pagamento">Aguardando pagamento</option>
+                        <option value="pago">Pago</option>
+                        <option value="em_preparacao">Em preparação</option>
+                        <option value="pronto_para_retirada">Pronto para retirada</option>
+                        <option value="pronto_para_envio">Pronto para envio</option>
+                        <option value="em_transporte">Em transporte</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </label>
+            </div>
+
+            <p
+                class="admin-retorno"
+                id="admin-retorno"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+            <div
+                class="admin-lista"
+                id="admin-lista"
+                aria-live="polite"
+            ></div>
+
+            <div class="admin-vazio" id="admin-vazio" hidden>
+                <h2>Nenhum pedido encontrado</h2>
+                <p>Altere os filtros ou aguarde uma nova venda.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <p class="rodape-direitos">
+            &copy; <span id="ano-atual"></span>
+            Vya. Todos os direitos reservados.
+        </p>
+    </footer>
+</body>
+</html>

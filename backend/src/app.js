@@ -8,10 +8,12 @@ import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
 import { tratarErros } from "./middlewares/error.middleware.js";
 import adminOrdersRoutes from "./modules/admin-orders/admin-orders.routes.js";
+import adminProductsRoutes from "./modules/admin-products/admin-products.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
 import checkoutRoutes from "./modules/checkout/checkout.routes.js";
 import publicConfigRoutes from "./modules/config/public-config.routes.js";
+import productsRoutes from "./modules/products/products.routes.js";
 
 
 const app = express();
@@ -181,6 +183,14 @@ app.use(
 );
 
 /*
+    Catálogo público abastecido pelo banco.
+*/
+app.use(
+    "/api/produtos",
+    productsRoutes
+);
+
+/*
     Rotas do carrinho do usuário autenticado.
 */
 
@@ -209,6 +219,14 @@ app.use(
 app.use(
     "/api/admin/pedidos",
     adminOrdersRoutes
+);
+
+/*
+    Cadastro e manutenção do catálogo.
+*/
+app.use(
+    "/api/admin/produtos",
+    adminProductsRoutes
 );
 
 /*

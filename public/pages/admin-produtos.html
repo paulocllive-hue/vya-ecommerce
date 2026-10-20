@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gestão de produtos e estoque da Vya.">
+    <title>Administrar produtos | Vya</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/auth-modal.css">
+    <link rel="stylesheet" href="../assets/css/carrinho.css">
+    <link rel="stylesheet" href="../assets/css/admin-produtos.css">
+
+    <script src="../assets/js/main.js" defer></script>
+    <script src="../assets/js/carrinho.js" defer></script>
+    <script src="../assets/js/auth-modal.js" defer></script>
+    <script src="../assets/js/admin-produtos.js" defer></script>
+</head>
+
+<body>
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a class="logo-cabeca" href="../index.html" aria-label="Página inicial da Vya">
+                <img
+                    class="logo-imagem"
+                    src="../images/logo/Vya vetorizada formato SVG.svg"
+                    alt="Vya"
+                >
+            </a>
+
+            <button
+                class="menu-botao"
+                id="menu-botao"
+                type="button"
+                aria-label="Abrir menu"
+                aria-expanded="false"
+                aria-controls="menu-principal"
+            >☰</button>
+
+            <nav class="menu" id="menu-principal" aria-label="Navegação principal">
+                <a href="../index.html">Início</a>
+                <a href="produtos.html">Loja</a>
+                <a href="admin-pedidos.html">Pedidos</a>
+                <a class="conta-link" id="botao-conta" href="login.html">
+                    Entrar / Cadastrar
+                </a>
+            </nav>
+
+            <a class="carrinho-link" href="carrinho.html">
+                Carrinho <span id="quantidade-carrinho">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="prod-admin-pagina">
+        <section class="prod-admin-topo">
+            <div class="container prod-admin-topo__conteudo">
+                <div>
+                    <span class="prod-admin-etiqueta">Administração</span>
+                    <h1>Produtos e estoque</h1>
+                    <p>
+                        Cadastre peças, organize variações e mantenha
+                        preços e estoque atualizados em um único lugar.
+                    </p>
+                </div>
+
+                <div class="prod-admin-topo__acoes">
+                    <button
+                        class="prod-admin-botao prod-admin-botao--claro"
+                        id="prod-admin-atualizar"
+                        type="button"
+                    >Atualizar</button>
+                    <button
+                        class="prod-admin-botao prod-admin-botao--destaque"
+                        id="prod-admin-novo"
+                        type="button"
+                    >Novo produto</button>
+                </div>
+            </div>
+        </section>
+
+        <section
+            class="container prod-admin-estado"
+            id="prod-admin-carregamento"
+            aria-live="polite"
+        >
+            <span class="prod-admin-carregando" aria-hidden="true"></span>
+            Carregando produtos...
+        </section>
+
+        <section
+            class="container prod-admin-estado prod-admin-estado--erro"
+            id="prod-admin-erro"
+            hidden
+        >
+            <h2 id="prod-admin-erro-titulo">Não foi possível abrir o catálogo</h2>
+            <p id="prod-admin-erro-texto"></p>
+            <button
+                class="prod-admin-botao prod-admin-botao--principal"
+                id="prod-admin-tentar"
+                type="button"
+            >Tentar novamente</button>
+        </section>
+
+        <section
+            class="container prod-admin-conteudo"
+            id="prod-admin-conteudo"
+            hidden
+        >
+            <div class="prod-admin-indicadores">
+                <article>
+                    <span>Produtos</span>
+                    <strong id="prod-admin-total-produtos">0</strong>
+                </article>
+                <article>
+                    <span>Produtos ativos</span>
+                    <strong id="prod-admin-produtos-ativos">0</strong>
+                </article>
+                <article>
+                    <span>Variações</span>
+                    <strong id="prod-admin-total-variantes">0</strong>
+                </article>
+                <article>
+                    <span>Unidades em estoque</span>
+                    <strong id="prod-admin-total-estoque">0</strong>
+                </article>
+            </div>
+
+            <div class="prod-admin-filtros">
+                <label>
+                    <span>Buscar</span>
+                    <input
+                        id="prod-admin-busca"
+                        type="search"
+                        placeholder="Nome, categoria ou SKU"
+                    >
+                </label>
+
+                <label>
+                    <span>Exibição</span>
+                    <select id="prod-admin-filtro-ativo">
+                        <option value="">Todos</option>
+                        <option value="ativo">Ativos</option>
+                        <option value="inativo">Inativos</option>
+                    </select>
+                </label>
+            </div>
+
+            <p
+                class="prod-admin-mensagem"
+                id="prod-admin-mensagem"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+            <div
+                class="prod-admin-lista"
+                id="prod-admin-lista"
+                aria-live="polite"
+            ></div>
+
+            <div class="prod-admin-vazio" id="prod-admin-vazio" hidden>
+                <h2>Nenhum produto encontrado</h2>
+                <p>Altere os filtros ou cadastre um novo produto.</p>
+            </div>
+        </section>
+    </main>
+
+    <div class="prod-admin-modal" id="modal-produto" hidden aria-hidden="true">
+        <div class="prod-admin-modal__fundo" data-fechar-modal-produto></div>
+        <section
+            class="prod-admin-modal__janela"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-produto-titulo"
+        >
+            <button
+                class="prod-admin-modal__fechar"
+                type="button"
+                aria-label="Fechar"
+                data-fechar-modal-produto
+            >&times;</button>
+
+            <h2 id="modal-produto-titulo">Novo produto</h2>
+            <p class="prod-admin-modal__introducao">
+                Preencha os dados da peça e sua primeira variação.
+            </p>
+
+            <form id="form-produto" class="prod-admin-formulario">
+                <input id="produto-id" type="hidden">
+
+                <div class="prod-admin-formulario__grade">
+                    <label>
+                        <span>Nome do produto</span>
+                        <input id="produto-nome" type="text" minlength="2" maxlength="150" required>
+                    </label>
+                    <label>
+                        <span>Categoria</span>
+                        <input id="produto-categoria" type="text" minlength="2" maxlength="80" required>
+                    </label>
+                </div>
+
+                <label>
+                    <span>Descrição</span>
+                    <textarea id="produto-descricao" maxlength="3000" rows="4"></textarea>
+                </label>
+
+                <label class="prod-admin-check">
+                    <input id="produto-ativo" type="checkbox" checked>
+                    <span>Produto ativo e visível na loja</span>
+                </label>
+
+                <fieldset id="produto-variante-inicial">
+                    <legend>Primeira variação</legend>
+                    <div class="prod-admin-formulario__grade prod-admin-formulario__grade--tres">
+                        <label>
+                            <span>SKU</span>
+                            <input id="produto-sku" type="text" minlength="2" maxlength="80">
+                        </label>
+                        <label>
+                            <span>Tamanho</span>
+                            <input id="produto-tamanho" type="text" maxlength="50" value="Único">
+                        </label>
+                        <label>
+                            <span>Cor</span>
+                            <input id="produto-cor" type="text" maxlength="80" value="Padrão">
+                        </label>
+                        <label>
+                            <span>Preço</span>
+                            <input id="produto-preco" type="number" min="0.01" max="999999.99" step="0.01">
+                        </label>
+                        <label>
+                            <span>Estoque inicial</span>
+                            <input id="produto-estoque" type="number" min="0" max="999999" step="1">
+                        </label>
+                        <label>
+                            <span>Caminho da imagem</span>
+                            <input id="produto-imagem" type="text" maxlength="500" placeholder="../images/produtos/peca.png">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <p class="prod-admin-formulario__mensagem" id="form-produto-mensagem"></p>
+
+                <div class="prod-admin-formulario__acoes">
+                    <button class="prod-admin-botao prod-admin-botao--secundario" type="button" data-fechar-modal-produto>
+                        Cancelar
+                    </button>
+                    <button class="prod-admin-botao prod-admin-botao--principal" id="produto-salvar" type="submit">
+                        Salvar produto
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div class="prod-admin-modal" id="modal-variante" hidden aria-hidden="true">
+        <div class="prod-admin-modal__fundo" data-fechar-modal-variante></div>
+        <section
+            class="prod-admin-modal__janela"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-variante-titulo"
+        >
+            <button
+                class="prod-admin-modal__fechar"
+                type="button"
+                aria-label="Fechar"
+                data-fechar-modal-variante
+            >&times;</button>
+
+            <h2 id="modal-variante-titulo">Nova variação</h2>
+            <p class="prod-admin-modal__introducao" id="modal-variante-produto"></p>
+
+            <form id="form-variante" class="prod-admin-formulario">
+                <input id="variante-produto-id" type="hidden">
+                <input id="variante-id" type="hidden">
+
+                <div class="prod-admin-formulario__grade prod-admin-formulario__grade--tres">
+                    <label>
+                        <span>SKU</span>
+                        <input id="variante-sku" type="text" minlength="2" maxlength="80" required>
+                    </label>
+                    <label>
+                        <span>Tamanho</span>
+                        <input id="variante-tamanho" type="text" maxlength="50" required>
+                    </label>
+                    <label>
+                        <span>Cor</span>
+                        <input id="variante-cor" type="text" maxlength="80" required>
+                    </label>
+                    <label>
+                        <span>Preço</span>
+                        <input id="variante-preco" type="number" min="0.01" max="999999.99" step="0.01" required>
+                    </label>
+                    <label>
+                        <span>Estoque</span>
+                        <input id="variante-estoque" type="number" min="0" max="999999" step="1" required>
+                    </label>
+                    <label>
+                        <span>Caminho da imagem</span>
+                        <input id="variante-imagem" type="text" maxlength="500" placeholder="../images/produtos/peca.png">
+                    </label>
+                </div>
+
+                <label class="prod-admin-check">
+                    <input id="variante-ativo" type="checkbox" checked>
+                    <span>Variação ativa e disponível na loja</span>
+                </label>
+
+                <p class="prod-admin-formulario__mensagem" id="form-variante-mensagem"></p>
+
+                <div class="prod-admin-formulario__acoes">
+                    <button class="prod-admin-botao prod-admin-botao--secundario" type="button" data-fechar-modal-variante>
+                        Cancelar
+                    </button>
+                    <button class="prod-admin-botao prod-admin-botao--principal" id="variante-salvar" type="submit">
+                        Salvar variação
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <footer class="rodape">
+        <p class="rodape-direitos">
+            &copy; <span id="ano-atual"></span> Vya. Todos os direitos reservados.
+        </p>
+    </footer>
+</body>
+</html>

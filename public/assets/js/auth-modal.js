@@ -287,6 +287,15 @@
 
                             <a
                                 class="botao"
+                                href="pages/admin-produtos.html"
+                                id="auth-link-admin-produtos"
+                                hidden
+                            >
+                                Administrar produtos
+                            </a>
+
+                            <a
+                                class="botao"
                                 href="pages/pedidos.html"
                                 id="auth-link-pedidos"
                             >
@@ -791,9 +800,19 @@ async function inicializarLoginGoogle() {
                 "#auth-link-admin-pedidos"
             );
 
+        const linkAdminProdutos =
+            document.querySelector(
+                "#auth-link-admin-produtos"
+            );
+
         if (linkAdmin) {
             linkAdmin.hidden =
-                usuarioAtual?.papel !== "admin";
+                usuarioAtual?.papel !== "administrador";
+        }
+
+        if (linkAdminProdutos) {
+            linkAdminProdutos.hidden =
+                usuarioAtual?.papel !== "administrador";
         }
 
         if (!botaoConta) {
@@ -1302,6 +1321,11 @@ async function inicializarLoginGoogle() {
             "#auth-link-admin-pedidos"
         );
 
+    const linkAdminProdutos =
+        document.querySelector(
+            "#auth-link-admin-produtos"
+        );
+
     if (
         window.location.pathname.includes(
             "/pages/"
@@ -1315,6 +1339,9 @@ async function inicializarLoginGoogle() {
 
         linkAdmin.href =
             "admin-pedidos.html";
+
+        linkAdminProdutos.href =
+            "admin-produtos.html";
     }
 
 
