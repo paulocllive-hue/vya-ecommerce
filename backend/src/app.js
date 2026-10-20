@@ -7,6 +7,7 @@ import { rateLimit } from "express-rate-limit";
 import { env } from "./config/env.js";
 import { AppError } from "./errors/app-error.js";
 import { tratarErros } from "./middlewares/error.middleware.js";
+import adminOrdersRoutes from "./modules/admin-orders/admin-orders.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import cartRoutes from "./modules/cart/cart.routes.js";
 import checkoutRoutes from "./modules/checkout/checkout.routes.js";
@@ -199,6 +200,15 @@ app.use(
 app.use(
     "/api/checkout",
     checkoutRoutes
+);
+
+/*
+    Gestão dos pedidos. Todas estas rotas
+    exigem uma sessão com papel de administrador.
+*/
+app.use(
+    "/api/admin/pedidos",
+    adminOrdersRoutes
 );
 
 /*

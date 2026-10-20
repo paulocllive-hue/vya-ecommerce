@@ -278,6 +278,15 @@
 
                             <a
                                 class="botao"
+                                href="pages/admin-pedidos.html"
+                                id="auth-link-admin-pedidos"
+                                hidden
+                            >
+                                Administrar pedidos
+                            </a>
+
+                            <a
+                                class="botao"
                                 href="pages/pedidos.html"
                                 id="auth-link-pedidos"
                             >
@@ -777,6 +786,16 @@ async function inicializarLoginGoogle() {
 
 
     function atualizarCabecalho() {
+        const linkAdmin =
+            document.querySelector(
+                "#auth-link-admin-pedidos"
+            );
+
+        if (linkAdmin) {
+            linkAdmin.hidden =
+                usuarioAtual?.papel !== "admin";
+        }
+
         if (!botaoConta) {
             return;
         }
@@ -1278,6 +1297,11 @@ async function inicializarLoginGoogle() {
             "#auth-link-pedidos"
         );
 
+    const linkAdmin =
+        document.querySelector(
+            "#auth-link-admin-pedidos"
+        );
+
     if (
         window.location.pathname.includes(
             "/pages/"
@@ -1288,6 +1312,9 @@ async function inicializarLoginGoogle() {
 
         linkPedidos.href =
             "pedidos.html";
+
+        linkAdmin.href =
+            "admin-pedidos.html";
     }
 
 
