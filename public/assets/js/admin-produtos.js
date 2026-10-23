@@ -27,6 +27,27 @@
         atualizar: document.querySelector("#prod-admin-atualizar"),
         novo: document.querySelector("#prod-admin-novo"),
         tentar: document.querySelector("#prod-admin-tentar"),
+        modalGerenciar: document.querySelector(
+            "#modal-gerenciar-produto"
+        ),
+        tituloGerenciar: document.querySelector(
+            "#modal-gerenciar-titulo"
+        ),
+        resumoGerenciar: document.querySelector(
+            "#modal-gerenciar-resumo"
+        ),
+        listaVariantesGerenciar: document.querySelector(
+            "#gerenciar-lista-variantes"
+        ),
+        editarProdutoGerenciar: document.querySelector(
+            "#gerenciar-editar-produto"
+        ),
+        adicionarVarianteGerenciar: document.querySelector(
+            "#gerenciar-adicionar-variante"
+        ),
+        excluirProdutoGerenciar: document.querySelector(
+            "#gerenciar-excluir-produto"
+        ),
         modalProduto: document.querySelector("#modal-produto"),
         tituloProduto: document.querySelector("#modal-produto-titulo"),
         formProduto: document.querySelector("#form-produto"),
@@ -42,7 +63,8 @@
     const estado = {
         produtos: [],
         categorias: [],
-        carregando: false
+        carregando: false,
+        produtoGerenciado: null
     };
 
     const CANAL_CATALOGO = "vya-catalogo";
@@ -53,13 +75,16 @@
         : null;
 
     async function chamarApi(caminho = "", opcoes = {}) {
+        const enviandoFormulario =
+            opcoes.body instanceof FormData;
+
         const resposta = await fetch(`${URL_API}${caminho}`, {
             ...opcoes,
             credentials: "include",
             cache: "no-store",
             headers: {
                 Accept: "application/json",
-                ...(opcoes.body
+                ...(opcoes.body && !enviandoFormulario
                     ? { "Content-Type": "application/json" }
                     : {}),
                 ...(opcoes.headers ?? {})
@@ -117,6 +142,7 @@
         modal.setAttribute("aria-hidden", "true");
 
         if (
+            elementos.modalGerenciar.hidden &&
             elementos.modalProduto.hidden &&
             elementos.modalVariante.hidden
         ) {
@@ -238,6 +264,8 @@
         campo("#variante-sku").value = "Consultando...";
         elementos.tituloVariante.textContent = "Nova variação";
         elementos.nomeProdutoVariante.textContent = produto.nome;
+        campo("#variante-imagem-ajuda").textContent =
+            "Selecione uma imagem JPG, PNG ou WebP de até 5 MB.";
         elementos.mensagemVariante.textContent = "";
         abrirModal(elementos.modalVariante);
         campo("#variante-tamanho").focus();
@@ -263,13 +291,80 @@
         campo("#variante-cor").value = variante.cor;
         campo("#variante-preco").value = variante.preco;
         campo("#variante-estoque").value = variante.estoque;
-        campo("#variante-imagem").value = variante.imagemUrl ?? "";
         campo("#variante-ativo").checked = variante.ativo;
+        campo("#variante-imagem-ajuda").textContent =
+            variante.imagemUrl
+                ? "Uma imagem já está cadastrada. Escolha outro arquivo somente para substituí-la."
+                : "Nenhuma imagem cadastrada. Selecione uma imagem JPG, PNG ou WebP de até 5 MB.";
         elementos.tituloVariante.textContent = "Editar variação";
         elementos.nomeProdutoVariante.textContent = produto.nome;
         elementos.mensagemVariante.textContent = "";
         abrirModal(elementos.modalVariante);
         campo("#variante-tamanho").focus();
+    }
+
+    function criarVarianteDoGerenciamento(
+        produto,
+        variante
+    ) {
+        const linha = document.createElement("article");
+        linha.className = "prod-admin-gerenciar__variante";
+
+        const identificacao = document.createElement("div");
+        const sku = document.createElement("strong");
+        const detalhes = document.createElement("span");
+        sku.textContent = variante.sku;
+        detalhes.textContent =
+            `${variante.tamanho} • ${variante.cor}`;
+        identificacao.append(sku, detalhes);
+
+        const valores = document.createElement("div");
+        const preco = document.createElement("strong");
+        const estoque = document.createElement("span");
+        preco.textContent = moeda.format(variante.preco);
+        estoque.textContent =
+            `${variante.estoque} em estoque`;
+        valores.append(preco, estoque);
+
+        const editar = document.createElement("button");
+        editar.type = "button";
+        editar.className =
+            "prod-admin-botao prod-admin-botao--pequeno";
+        editar.textContent = "Editar variação";
+        editar.addEventListener("click", () => {
+            fecharModal(elementos.modalGerenciar);
+            abrirEdicaoVariante(produto, variante);
+        });
+
+        linha.append(
+            identificacao,
+            valores,
+            criarStatus(variante.ativo),
+            editar
+        );
+        return linha;
+    }
+
+    function abrirGerenciamento(produto) {
+        estado.produtoGerenciado = produto;
+        elementos.tituloGerenciar.textContent =
+            `Gerenciar ${produto.nome}`;
+        elementos.resumoGerenciar.textContent =
+            `${produto.categoria} • ` +
+            `${produto.variantes.length} variação(ões) • ` +
+            `${produto.estoqueTotal} unidades em estoque`;
+
+        elementos.listaVariantesGerenciar.replaceChildren(
+            ...produto.variantes.map((variante) => {
+                return criarVarianteDoGerenciamento(
+                    produto,
+                    variante
+                );
+            })
+        );
+
+        abrirModal(elementos.modalGerenciar);
+        elementos.editarProdutoGerenciar.focus();
     }
 
     async function salvarProduto(evento) {
@@ -289,6 +384,8 @@
             const estoqueTexto = campo("#produto-estoque").value;
             const preco = Number(precoTexto);
             const estoque = Number(estoqueTexto);
+            const imagem = campo("#produto-imagem")
+                .files[0];
 
             if (
                 !campo("#produto-tamanho").value.trim() ||
@@ -301,11 +398,22 @@
                 return;
             }
 
+            if (!imagem) {
+                elementos.mensagemProduto.textContent =
+                    "Selecione uma imagem para o novo produto.";
+                return;
+            }
+
+            if (imagem.size > 5 * 1024 * 1024) {
+                elementos.mensagemProduto.textContent =
+                    "A imagem deve possuir no máximo 5 MB.";
+                return;
+            }
+
             dados.varianteInicial = {
                 tamanho: campo("#produto-tamanho").value,
                 preco,
                 estoque,
-                imagemUrl: campo("#produto-imagem").value || null,
                 ativo: true
             };
         }
@@ -314,11 +422,27 @@
         elementos.mensagemProduto.textContent = "Salvando...";
 
         try {
+            let corpo;
+
+            if (produtoId) {
+                corpo = JSON.stringify(dados);
+            } else {
+                corpo = new FormData();
+                corpo.append(
+                    "dados",
+                    JSON.stringify(dados)
+                );
+                corpo.append(
+                    "imagem",
+                    campo("#produto-imagem").files[0]
+                );
+            }
+
             await chamarApi(
                 produtoId ? `/${encodeURIComponent(produtoId)}` : "",
                 {
                     method: produtoId ? "PATCH" : "POST",
-                    body: JSON.stringify(dados)
+                    body: corpo
                 }
             );
 
@@ -348,6 +472,7 @@
         const estoqueTexto = campo("#variante-estoque").value;
         const preco = Number(precoTexto);
         const estoque = Number(estoqueTexto);
+        const imagem = campo("#variante-imagem").files[0];
 
         if (
             !precoTexto || !estoqueTexto ||
@@ -359,12 +484,17 @@
             return;
         }
 
+        if (imagem && imagem.size > 5 * 1024 * 1024) {
+            elementos.mensagemVariante.textContent =
+                "A imagem deve possuir no máximo 5 MB.";
+            return;
+        }
+
         const dados = {
             tamanho: campo("#variante-tamanho").value,
             cor: campo("#variante-cor").value,
             preco,
             estoque,
-            imagemUrl: campo("#variante-imagem").value || null,
             ativo: campo("#variante-ativo").checked
         };
 
@@ -378,9 +508,15 @@
                 ? `${caminhoBase}/${encodeURIComponent(varianteId)}`
                 : caminhoBase;
 
+            const corpo = new FormData();
+            corpo.append("dados", JSON.stringify(dados));
+            if (imagem) {
+                corpo.append("imagem", imagem);
+            }
+
             await chamarApi(caminho, {
                 method: varianteId ? "PATCH" : "POST",
-                body: JSON.stringify(dados)
+                body: corpo
             });
 
             fecharModal(elementos.modalVariante);
@@ -476,15 +612,7 @@
 
         const status = criarStatus(variante.ativo);
 
-        const editar = document.createElement("button");
-        editar.type = "button";
-        editar.className = "prod-admin-botao prod-admin-botao--pequeno";
-        editar.textContent = "Editar";
-        editar.addEventListener("click", () => {
-            abrirEdicaoVariante(produto, variante);
-        });
-
-        linha.append(identificacao, preco, estoque, status, editar);
+        linha.append(identificacao, preco, estoque, status);
         return linha;
     }
 
@@ -516,25 +644,15 @@
 
         const acoes = document.createElement("div");
         acoes.className = "prod-admin-produto__acoes";
-        const editar = document.createElement("button");
-        editar.type = "button";
-        editar.className = "prod-admin-botao prod-admin-botao--secundario";
-        editar.textContent = "Editar produto";
-        editar.addEventListener("click", () => abrirEdicaoProduto(produto));
-        const adicionar = document.createElement("button");
-        adicionar.type = "button";
-        adicionar.className = "prod-admin-botao prod-admin-botao--principal";
-        adicionar.textContent = "Adicionar cor/tamanho";
-        adicionar.addEventListener("click", () => abrirNovaVariante(produto));
-        const excluir = document.createElement("button");
-        excluir.type = "button";
-        excluir.className =
-            "prod-admin-botao prod-admin-botao--perigo";
-        excluir.textContent = "Excluir";
-        excluir.addEventListener("click", () => {
-            excluirProduto(produto);
+        const gerenciar = document.createElement("button");
+        gerenciar.type = "button";
+        gerenciar.className =
+            "prod-admin-botao prod-admin-botao--principal";
+        gerenciar.textContent = "Gerenciar produto";
+        gerenciar.addEventListener("click", () => {
+            abrirGerenciamento(produto);
         });
-        acoes.append(editar, adicionar, excluir);
+        acoes.append(gerenciar);
 
         resumo.append(imagem, texto, numeros, acoes);
 
@@ -655,6 +773,48 @@
         atualizarSkuProduto
     );
 
+    elementos.editarProdutoGerenciar.addEventListener(
+        "click",
+        () => {
+            const produto = estado.produtoGerenciado;
+            if (!produto) {
+                return;
+            }
+            fecharModal(elementos.modalGerenciar);
+            abrirEdicaoProduto(produto);
+        }
+    );
+
+    elementos.adicionarVarianteGerenciar.addEventListener(
+        "click",
+        () => {
+            const produto = estado.produtoGerenciado;
+            if (!produto) {
+                return;
+            }
+            fecharModal(elementos.modalGerenciar);
+            abrirNovaVariante(produto);
+        }
+    );
+
+    elementos.excluirProdutoGerenciar.addEventListener(
+        "click",
+        () => {
+            const produto = estado.produtoGerenciado;
+            if (!produto) {
+                return;
+            }
+            fecharModal(elementos.modalGerenciar);
+            excluirProduto(produto);
+        }
+    );
+
+    document.querySelectorAll("[data-fechar-modal-gerenciar]")
+        .forEach((elemento) => elemento.addEventListener(
+            "click",
+            () => fecharModal(elementos.modalGerenciar)
+        ));
+
     document.querySelectorAll("[data-fechar-modal-produto]")
         .forEach((elemento) => elemento.addEventListener(
             "click",
@@ -678,6 +838,10 @@
 
         if (!elementos.modalVariante.hidden) {
             fecharModal(elementos.modalVariante);
+        }
+
+        if (!elementos.modalGerenciar.hidden) {
+            fecharModal(elementos.modalGerenciar);
         }
     });
 

@@ -15,6 +15,7 @@ import {
     inserirProduto,
     inserirVariante,
     listarProdutosAdmin,
+    listarSlugsPorPrefixo,
     listarSkusPorPrefixo,
     listarVariantesAdmin
 } from "./admin-products.repository.js";
@@ -81,6 +82,14 @@ function tratarDuplicidade(erro) {
             );
         }
 
+        if (mensagemBanco.includes("slug")) {
+            throw new AppError(
+                "O endereço automático deste produto já está ocupado. Atualize o painel e tente salvar novamente.",
+                409,
+                "SLUG_DUPLICADO"
+            );
+        }
+
         throw new AppError(
             "Este produto já possui uma variação com o mesmo tamanho e a mesma cor.",
             409,
@@ -89,6 +98,47 @@ function tratarDuplicidade(erro) {
     }
 
     throw erro;
+}
+
+
+function criarSlugBase(nome) {
+    const slug = nome
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 140)
+        .replace(/-+$/g, "");
+
+    return slug || "produto";
+}
+
+
+async function gerarSlugProduto(
+    nome,
+    executor = pool,
+    bloquear = false
+) {
+    const slugBase = criarSlugBase(nome);
+    const existentes = new Set(
+        await listarSlugsPorPrefixo(
+            slugBase,
+            executor,
+            bloquear
+        )
+    );
+
+    if (!existentes.has(slugBase)) {
+        return slugBase;
+    }
+
+    let numero = 2;
+    while (existentes.has(`${slugBase}-${numero}`)) {
+        numero += 1;
+    }
+
+    return `${slugBase}-${numero}`;
 }
 
 
@@ -171,6 +221,11 @@ export async function criarProduto(dados) {
             {
                 id: produtoId,
                 nome: dados.nome,
+                slug: await gerarSlugProduto(
+                    dados.nome,
+                    conexao,
+                    true
+                ),
                 categoria: dados.categoria,
                 descricao: dados.descricao,
                 ativo: dados.ativo
@@ -389,6 +444,7 @@ export async function editarVariante(
     dados
 ) {
     const conexao = await pool.getConnection();
+    let imagemAnterior = null;
 
     try {
         await conexao.beginTransaction();
@@ -407,6 +463,8 @@ export async function editarVariante(
                 "VARIANTE_NAO_ENCONTRADA"
             );
         }
+
+        imagemAnterior = atual.imagem_url;
 
         await atualizarVariante(
             {
@@ -440,10 +498,13 @@ export async function editarVariante(
         conexao.release();
     }
 
-    return montarVariante(
-        await buscarVarianteAdmin(
-            produtoId,
-            varianteId
-        )
-    );
+    return {
+        variante: montarVariante(
+            await buscarVarianteAdmin(
+                produtoId,
+                varianteId
+            )
+        ),
+        imagemAnterior
+    };
 }

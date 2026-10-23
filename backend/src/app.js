@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -45,7 +47,19 @@ app.disable("x-powered-by");
 /*
     Adiciona cabeçalhos HTTP de segurança.
 */
-app.use(helmet());
+app.use(
+    helmet({
+        /*
+            As imagens ficam na API (porta 3000), enquanto
+            o frontend local fica no Apache (porta 80).
+            Esta política permite que o navegador exiba
+            essas imagens em outra origem autorizada.
+        */
+        crossOriginResourcePolicy: {
+            policy: "cross-origin"
+        }
+    })
+);
 
 
 /*
@@ -134,6 +148,26 @@ app.use(
     requisicao.cookies
 */
 app.use(cookieParser());
+
+
+/*
+    Disponibiliza publicamente somente os arquivos da
+    pasta backend/uploads.
+
+    Exemplo:
+    /uploads/produtos/arquivo.webp
+*/
+const diretorioUploads = fileURLToPath(
+    new URL("../uploads/", import.meta.url)
+);
+
+app.use(
+    "/uploads",
+    express.static(diretorioUploads, {
+        etag: true,
+        maxAge: "7d"
+    })
+);
 
 
 /*

@@ -166,6 +166,76 @@
         </section>
     </main>
 
+    <div class="prod-admin-modal" id="modal-gerenciar-produto" hidden aria-hidden="true">
+        <div class="prod-admin-modal__fundo" data-fechar-modal-gerenciar></div>
+        <section
+            class="prod-admin-modal__janela prod-admin-modal__janela--gerenciar"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-gerenciar-titulo"
+        >
+            <button
+                class="prod-admin-modal__fechar"
+                type="button"
+                aria-label="Fechar"
+                data-fechar-modal-gerenciar
+            >&times;</button>
+
+            <span class="prod-admin-etiqueta">Gerenciamento</span>
+            <h2 id="modal-gerenciar-titulo">Gerenciar produto</h2>
+            <p
+                class="prod-admin-modal__introducao"
+                id="modal-gerenciar-resumo"
+            ></p>
+
+            <div class="prod-admin-gerenciar__acoes">
+                <button
+                    class="prod-admin-botao prod-admin-botao--secundario"
+                    id="gerenciar-editar-produto"
+                    type="button"
+                >
+                    Editar dados do produto
+                </button>
+                <button
+                    class="prod-admin-botao prod-admin-botao--principal"
+                    id="gerenciar-adicionar-variante"
+                    type="button"
+                >
+                    Adicionar cor/tamanho
+                </button>
+            </div>
+
+            <section class="prod-admin-gerenciar__secao" aria-labelledby="gerenciar-variantes-titulo">
+                <div class="prod-admin-gerenciar__cabecalho">
+                    <div>
+                        <h3 id="gerenciar-variantes-titulo">Variações</h3>
+                        <p>Edite preço, estoque, cor, tamanho e imagem.</p>
+                    </div>
+                </div>
+                <div
+                    class="prod-admin-gerenciar__variantes"
+                    id="gerenciar-lista-variantes"
+                ></div>
+            </section>
+
+            <section class="prod-admin-gerenciar__perigo" aria-labelledby="gerenciar-perigo-titulo">
+                <div>
+                    <h3 id="gerenciar-perigo-titulo">Área de segurança</h3>
+                    <p>
+                        A exclusão é permanente e continua protegida pelas regras do backend.
+                    </p>
+                </div>
+                <button
+                    class="prod-admin-botao prod-admin-botao--perigo"
+                    id="gerenciar-excluir-produto"
+                    type="button"
+                >
+                    Excluir produto
+                </button>
+            </section>
+        </section>
+    </div>
+
     <div class="prod-admin-modal" id="modal-produto" hidden aria-hidden="true">
         <div class="prod-admin-modal__fundo" data-fechar-modal-produto></div>
         <section
@@ -231,9 +301,16 @@
                             <span>Estoque inicial</span>
                             <input id="produto-estoque" type="number" min="0" max="999999" step="1">
                         </label>
-                        <label>
-                            <span>Caminho da imagem</span>
-                            <input id="produto-imagem" type="text" maxlength="500" placeholder="../images/produtos/peca.png">
+                        <label class="prod-admin-campo-imagem">
+                            <span>Imagem do produto</span>
+                            <input
+                                id="produto-imagem"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                            >
+                            <small>
+                                Selecione uma imagem JPG, PNG ou WebP de até 5 MB.
+                            </small>
                         </label>
                     </div>
                 </fieldset>
@@ -295,9 +372,16 @@
                         <span>Estoque</span>
                         <input id="variante-estoque" type="number" min="0" max="999999" step="1" required>
                     </label>
-                    <label>
-                        <span>Caminho da imagem</span>
-                        <input id="variante-imagem" type="text" maxlength="500" placeholder="../images/produtos/peca.png">
+                    <label class="prod-admin-campo-imagem">
+                        <span>Imagem da variação</span>
+                        <input
+                            id="variante-imagem"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                        >
+                        <small id="variante-imagem-ajuda">
+                            Selecione uma imagem JPG, PNG ou WebP de até 5 MB.
+                        </small>
                     </label>
                 </div>
 

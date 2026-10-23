@@ -6,6 +6,9 @@ import {
 import {
     exigirAutenticacao
 } from "../../middlewares/auth.middleware.js";
+import {
+    receberImagemProduto
+} from "../../middlewares/product-image-upload.middleware.js";
 
 import {
     atualizarProduto,
@@ -31,15 +34,21 @@ adminProductsRoutes.get(
     "/proximo-sku",
     consultarProximoSku
 );
-adminProductsRoutes.post("/", cadastrarProduto);
+adminProductsRoutes.post(
+    "/",
+    receberImagemProduto,
+    cadastrarProduto
+);
 adminProductsRoutes.patch("/:produtoId", atualizarProduto);
 adminProductsRoutes.delete("/:produtoId", excluirProduto);
 adminProductsRoutes.post(
     "/:produtoId/variantes",
+    receberImagemProduto,
     cadastrarVariante
 );
 adminProductsRoutes.patch(
     "/:produtoId/variantes/:varianteId",
+    receberImagemProduto,
     atualizarVariante
 );
 

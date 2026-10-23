@@ -69,6 +69,27 @@ export async function listarSkusPorPrefixo(
 }
 
 
+export async function listarSlugsPorPrefixo(
+    slugBase,
+    executor = pool,
+    bloquear = false
+) {
+    const [linhas] = await executor.execute(
+        `
+            SELECT slug
+            FROM produtos
+            WHERE slug = ?
+               OR slug LIKE ?
+            ORDER BY slug ASC
+            ${bloquear ? "FOR UPDATE" : ""}
+        `,
+        [slugBase, `${slugBase}-%`]
+    );
+
+    return linhas.map((linha) => linha.slug);
+}
+
+
 export async function contarItensPedidoDoProduto(
     produtoId,
     executor = pool
@@ -197,7 +218,7 @@ export async function buscarVarianteAdmin(
 
 
 export async function inserirProduto(
-    { id, nome, categoria, descricao, ativo },
+    { id, nome, slug, categoria, descricao, ativo },
     executor
 ) {
     await executor.execute(
@@ -205,13 +226,21 @@ export async function inserirProduto(
             INSERT INTO produtos (
                 id,
                 nome,
+                slug,
                 categoria,
                 descricao,
                 ativo
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         `,
-        [id, nome, categoria, descricao, ativo ? 1 : 0]
+        [
+            id,
+            nome,
+            slug,
+            categoria,
+            descricao,
+            ativo ? 1 : 0
+        ]
     );
 }
 

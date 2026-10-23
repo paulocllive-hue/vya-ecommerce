@@ -240,6 +240,38 @@
     cursor: default;
 }
 
+/*
+ * Campos numéricos devem conservar a altura normal do controle.
+ * Isso impede que o campo de estoque seja esticado para acompanhar
+ * um campo vizinho mais alto, como o seletor de imagem.
+ */
+.prod-admin-formulario input[type="number"] {
+    height: 44px;
+    min-height: 44px;
+}
+
+.prod-admin-campo-imagem small {
+    color: #6e7b81;
+    font-size: 0.72rem;
+    line-height: 1.4;
+}
+
+.prod-admin-campo-imagem input[type="file"] {
+    cursor: pointer;
+    padding: 7px;
+}
+
+.prod-admin-campo-imagem input[type="file"]::file-selector-button {
+    background: #087c70;
+    border: 0;
+    border-radius: 8px;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 800;
+    margin-right: 10px;
+    padding: 8px 12px;
+}
+
 .prod-admin-mensagem,
 .prod-admin-formulario__mensagem {
     border-radius: 10px;
@@ -301,7 +333,8 @@
 
 .prod-admin-produto__imagem img {
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    padding: 6px;
     width: 100%;
 }
 
@@ -368,7 +401,7 @@
     align-items: center;
     display: grid;
     gap: 15px;
-    grid-template-columns: minmax(160px, 1fr) 110px 125px 80px auto;
+    grid-template-columns: minmax(160px, 1fr) 110px 125px 80px;
     padding: 13px 20px;
 }
 
@@ -441,6 +474,89 @@
     margin-bottom: 20px;
 }
 
+.prod-admin-modal__janela--gerenciar {
+    max-width: 920px;
+}
+
+.prod-admin-gerenciar__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.prod-admin-gerenciar__secao {
+    border: 1px solid #d5e0dc;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.prod-admin-gerenciar__cabecalho {
+    align-items: center;
+    background: #f4f8f6;
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 16px;
+}
+
+.prod-admin-gerenciar__cabecalho h3,
+.prod-admin-gerenciar__perigo h3 {
+    color: #062a4a;
+    font-size: 1rem;
+    margin: 0 0 3px;
+}
+
+.prod-admin-gerenciar__cabecalho p,
+.prod-admin-gerenciar__perigo p {
+    color: #6e7b81;
+    font-size: 0.78rem;
+    margin: 0;
+}
+
+.prod-admin-gerenciar__variantes {
+    display: grid;
+}
+
+.prod-admin-gerenciar__variante {
+    align-items: center;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(170px, 1fr) minmax(130px, 0.5fr) auto auto;
+    padding: 13px 16px;
+}
+
+.prod-admin-gerenciar__variante +
+.prod-admin-gerenciar__variante {
+    border-top: 1px solid #e7eeeb;
+}
+
+.prod-admin-gerenciar__variante > div {
+    display: grid;
+    gap: 2px;
+}
+
+.prod-admin-gerenciar__variante strong {
+    color: #263c4c;
+    font-size: 0.85rem;
+}
+
+.prod-admin-gerenciar__variante span:not(.prod-admin-status) {
+    color: #748087;
+    font-size: 0.75rem;
+}
+
+.prod-admin-gerenciar__perigo {
+    align-items: center;
+    background: #fff7f8;
+    border: 1px solid #f0c6cf;
+    border-radius: 14px;
+    display: flex;
+    gap: 18px;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding: 14px 16px;
+}
+
 .prod-admin-modal__fechar {
     background: transparent;
     border: 0;
@@ -458,6 +574,7 @@
 }
 
 .prod-admin-formulario__grade {
+    align-items: start;
     display: grid;
     gap: 13px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -518,6 +635,15 @@
         flex-direction: column;
     }
 
+    .prod-admin-gerenciar__variante {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .prod-admin-gerenciar__perigo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .prod-admin-filtros,
     .prod-admin-formulario__grade,
     .prod-admin-formulario__grade--tres {
@@ -542,7 +668,8 @@
 
 @media (max-width: 480px) {
     .prod-admin-indicadores,
-    .prod-admin-variante {
+    .prod-admin-variante,
+    .prod-admin-gerenciar__variante {
         grid-template-columns: 1fr;
     }
 
