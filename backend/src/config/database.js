@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import { criarPoolUtc } from "./utc-pool.js";
 
 import { env } from "./env.js";
 
@@ -7,7 +8,7 @@ import { env } from "./env.js";
     Cria um pool reutilizável de conexões
     com o MariaDB.
 */
-export const pool = mysql.createPool({
+const poolBase = mysql.createPool({
     /*
         Dados validados pelo env.js.
     */
@@ -49,6 +50,9 @@ export const pool = mysql.createPool({
     enableKeepAlive: true,
     keepAliveInitialDelay: 0
 });
+
+// A sessão SQL e a conversão do driver precisam usar o mesmo fuso.
+export const pool = criarPoolUtc(poolBase);
 
 
 /*

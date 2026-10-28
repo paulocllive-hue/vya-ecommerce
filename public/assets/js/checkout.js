@@ -93,6 +93,9 @@
     };
 
     const estado = {
+        metodoPagamento: null,
+        finalizando: false,
+        pedidoCriado: false,
         carrinho: null,
         opcoes: null,
         metodoEntrega: "retirada",
@@ -320,6 +323,40 @@
         });
     }
 
+    function configurarPagamento() {
+        const configuracao = estado.opcoes.pagamento;
+        if (!configuracao || configuracao.modo !== "preparacao" ||
+            !Array.isArray(configuracao.metodos) || !configuracao.metodos.length) {
+            throw new Error("As opções de pagamento não foram carregadas. Atualize a página.");
+        }
+        document.querySelector("#checkout-pagamento-aviso").textContent = configuracao.mensagem;
+        const area = document.querySelector("#checkout-metodos-pagamento");
+        area.replaceChildren();
+        estado.metodoPagamento = null;
+        for (const metodo of configuracao.metodos) {
+            const label = document.createElement("label");
+            label.className = "checkout-opcao";
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "metodo-pagamento";
+            radio.value = metodo.id;
+            radio.required = true;
+            radio.addEventListener("change", () => {
+                estado.metodoPagamento = metodo.id;
+                definirMensagem(elementos.mensagemFinal);
+            });
+            const texto = document.createElement("span");
+            texto.className = "checkout-opcao__conteudo";
+            const titulo = document.createElement("strong");
+            titulo.textContent = metodo.nome;
+            const descricao = document.createElement("span");
+            descricao.textContent = metodo.descricao;
+            texto.append(titulo, descricao);
+            label.append(radio, texto);
+            area.append(label);
+        }
+    }
+
     function configurarEntrega() {
         const disponivel = Boolean(
             estado.opcoes.entregaPropriaDisponivel
@@ -534,7 +571,14 @@
     }
 
     async function finalizarPedido() {
+        if (estado.finalizando || estado.pedidoCriado) return;
         definirMensagem(elementos.mensagemFinal);
+        if (!estado.metodoPagamento) {
+            definirMensagem(elementos.mensagemFinal,
+                "Escolha como você prefere pagar.", "erro");
+            document.querySelector("input[name='metodo-pagamento']")?.focus();
+            return;
+        }
 
         if (
             estado.metodoEntrega ===
@@ -552,9 +596,11 @@
         elementos.finalizar.disabled = true;
         elementos.finalizar.textContent =
             "Criando pedido...";
+        estado.finalizando = true;
 
         try {
             const corpo = {
+                metodoPagamento: estado.metodoPagamento,
                 metodoEntrega:
                     estado.metodoEntrega
             };
@@ -575,6 +621,7 @@
             );
 
             const pedido = resultado.data.pedido;
+            estado.pedidoCriado = true;
 
             elementos.conteudo.hidden = true;
             elementos.sucesso.hidden = false;
@@ -583,8 +630,15 @@
 
             elementos.sucessoDetalhes.textContent =
                 estado.metodoEntrega === "retirada"
-                    ? `Total ${moeda.format(pedido.total)}. A retirada será combinada após a confirmação do pedido.`
+                    ? `Total ${moeda.format(pedido.total)}. Aguarde a confirmação do pagamento e o aviso para retirada.`
                     : `Total ${moeda.format(pedido.total)} com entrega.`;
+
+            const metodo = estado.opcoes.pagamento.metodos.find(
+                (item) => item.id === pedido.metodoPagamento
+            );
+            document.querySelector("#checkout-sucesso-pagamento").textContent =
+                `Preferência: ${metodo?.nome || pedido.metodoPagamento}. ` +
+                "Nenhuma cobrança foi realizada. O pagamento online ainda não está disponível.";
 
             window.CarrinhoVya?.zerarContador?.();
             window.scrollTo({
@@ -601,6 +655,8 @@
             elementos.finalizar.disabled = false;
             elementos.finalizar.textContent =
                 "Confirmar pedido";
+        } finally {
+            estado.finalizando = false;
         }
     }
 
@@ -647,6 +703,7 @@
             elementos.areaEnderecos.hidden = true;
 
             renderizarItens();
+            configurarPagamento();
             configurarEntrega();
             atualizarValores();
 

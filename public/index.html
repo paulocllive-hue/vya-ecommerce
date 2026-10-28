@@ -20,6 +20,16 @@
 >
     <link rel="stylesheet" href="assets/css/carrinho.css">
 
+    <link
+    rel="stylesheet"
+    href="assets/css/produtos.css"
+>
+
+    <script
+        src="assets/js/produtos.js"
+        defer
+    ></script>
+
     <script
         src="assets/js/main.js"
         defer
@@ -128,13 +138,13 @@
                         <p>Força, conforto e confiança para você superar seus limites.</p>
                     </a>
 
-                    <a class="categoria" href="pages/produtos.html?categoria=praia">
-                        <h3>MODA PRAIA</h3>
+                    <a class="categoria" href="pages/produtos.html?categoria=moda-praia">
+                        <h3>PRAIA &amp; LAZER</h3>
                         <p>Leveza e personalidade para viver intensamente cada momento ao sol.</p>
                     </a>
 
                     <a class="categoria" href="pages/produtos.html?categoria=natacao">
-                        <h3>NATAÇÃO</h3>
+                        <h3>NATAÇÃO &amp; PERFORMACE</h3>
                         <p>Liberdade e desempenho para você ir mais longe dentro e fora d’água.</p>
                     
                     </a>
@@ -143,83 +153,33 @@
         </section>
 
         <section class="secao secao--clara">
-            <div class="container">
-                <div class="secao__cabecalho">
-                    <span class="destaque">Seleção Vya</span>
-                    <h2>Produtos em destaque</h2>
-                </div>
+    <div class="container">
+        <div class="secao__cabecalho">
+            <span class="destaque">
+                Seleção Vya
+            </span>
 
-                <div class="produtos">
-                    <article class="produto">
-                        <div class="produto__imagem">
+            <h2>
+                Produtos em destaque
+            </h2>
+        </div>
 
-                            <img src="images/banners/produtos/Duas peças com estampa leopardo.png">
+        <div
+            class="produtos"
+            data-limite="3"
+            aria-live="polite"
+        ></div>
 
-                        </div>
-
-                        <div class="produto__conteudo">
-                            <span class="produto__categoria">Fitness</span>
-                            <h3>Conjunto Fitness Vya</h3>
-                            <p class="produto__preco">R$ 149,90</p>
-
-                            <button
-                                class="botao adicionar-carrinho"
-                                type="button"
-                                data-id="1"
-                                data-nome="Conjunto Fitness Vya"
-                                data-preco="149.90"
-                            >
-                                Adicionar ao carrinho
-                            </button>
-                        </div>
-                    </article>
-
-                    <article class="produto">
-                        <div class="produto__imagem">
-                            <img src="images/banners/produtos/Duas peças de roupa com fundo transparente.png">
-                        </div>
-
-                        <div class="produto__conteudo">
-                            <span class="produto__categoria">Moda praia</span>
-                            <h3>Biquíni Vya Solar</h3>
-                            <p class="produto__preco">R$ 119,90</p>
-
-                            <button
-                                class="botao adicionar-carrinho"
-                                type="button"
-                                data-id="2"
-                                data-nome="Biquíni Vya Solar"
-                                data-preco="119.90"
-                            >
-                                Adicionar ao carrinho
-                            </button>
-                        </div>
-                    </article>
-
-                    <article class="produto">
-                        <div class="produto__imagem">
-                            <img src="images/banners/produtos/Conjunto infantil roxo com unicórnios.png">
-                        </div>
-
-                        <div class="produto__conteudo">
-                            <span class="produto__categoria">Natação</span>
-                            <h3>Kids Natação</h3>
-                            <p class="produto__preco">R$ 139,90</p>
-
-                            <button
-                                class="botao adicionar-carrinho"
-                                type="button"
-                                data-id="3"
-                                data-nome="Maiô Vya Movimento"
-                                data-preco="139.90"
-                            >
-                                Adicionar ao carrinho
-                            </button>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
+        <div class="produtos-destaque__rodape">
+            <a
+                class="botao botao--principal"
+                href="pages/produtos.html"
+            >
+                Ver todos os produtos
+            </a>
+        </div>
+    </div>
+</section>
 
         <section class="secao" id="sobre">
             <div class="container sobre">

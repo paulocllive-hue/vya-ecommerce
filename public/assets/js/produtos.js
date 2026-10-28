@@ -5,6 +5,33 @@
         "http://localhost:3000/api/produtos";
     const URL_API_CARRINHO =
         "http://localhost:3000/api/carrinho/itens";
+    const CATEGORIAS_PUBLICAS = Object.freeze({
+    fitness: {
+        nome: "Fitness",
+        titulo: "Produtos Fitness"
+    },
+    "moda-praia": {
+        nome: "Praia & Lazer",
+        titulo: "Produtos de Moda Praia"
+    },
+    natacao: {
+        nome: "Natação & Performace",
+        titulo: "Produtos de Natação"
+    }
+});
+
+const parametrosPagina = new URLSearchParams(
+    window.location.search
+);
+
+const categoriaSlug = (
+    parametrosPagina.get("categoria") ?? ""
+)
+    .trim()
+    .toLowerCase();
+
+const categoriaAtual =
+    CATEGORIAS_PUBLICAS[categoriaSlug] ?? null;
     const CANAL_CATALOGO = "vya-catalogo";
     const CHAVE_CATALOGO_ATUALIZADO =
         "vyaCatalogoAtualizadoEm";
@@ -19,6 +46,11 @@
     if (!grade) {
         return;
     }
+
+    const limiteProdutos = Number.parseInt(
+    grade.dataset.limite ?? "",
+    10
+);
 
     const estado = {
         adicionando: new Set(),
@@ -42,6 +74,16 @@
 
         return elemento;
     }
+    
+    function obterNomeCategoriaExibicao(categoria) {
+    const nomes = {
+        "Fitness": "Fitness",
+        "Moda praia": "Praia & Lazer",
+        "Natação": "Natação & Performance"
+    };
+
+    return nomes[categoria] ?? categoria;
+}
 
     async function lerResposta(resposta) {
         try {
@@ -52,25 +94,40 @@
     }
 
     async function buscarProdutos() {
-        const resposta = await fetch(URL_API_PRODUTOS, {
-            credentials: "include",
-            cache: "no-store",
-            headers: {
-                Accept: "application/json"
-            }
-        });
-        const resultado = await lerResposta(resposta);
-
-        if (!resposta.ok) {
-            throw new Error(
-                resultado?.message ||
-                "Não foi possível carregar os produtos."
-            );
-        }
-
-        return resultado?.data?.produtos ?? [];
+    if (categoriaSlug && !categoriaAtual) {
+        throw new Error(
+            "A categoria selecionada não existe."
+        );
     }
 
+    const url = new URL(URL_API_PRODUTOS);
+
+    if (categoriaSlug) {
+        url.searchParams.set(
+            "categoria",
+            categoriaSlug
+        );
+    }
+
+    const resposta = await fetch(url.toString(), {
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+            Accept: "application/json"
+        }
+    });
+
+    const resultado = await lerResposta(resposta);
+
+    if (!resposta.ok) {
+        throw new Error(
+            resultado?.message ||
+            "Não foi possível carregar os produtos."
+        );
+    }
+
+    return resultado?.data?.produtos ?? [];
+}
     async function adicionarAoCarrinho(varianteId) {
         const resposta = await fetch(URL_API_CARRINHO, {
             method: "POST",
@@ -115,11 +172,14 @@
             "produto-imagem-placeholder",
             "VYA"
         );
+        let urlAtual = null;
 
         imagem.alt = `Foto de ${produto.nome}`;
         imagem.loading = "lazy";
 
         function atualizarImagem(url) {
+            urlAtual = url || null;
+
             if (url) {
                 imagem.src = url;
                 imagem.hidden = false;
@@ -141,8 +201,159 @@
 
         return {
             area,
-            atualizarImagem
+            elemento: imagem,
+            atualizarImagem,
+            obterUrl: () => urlAtual
         };
+    }
+
+    function abrirZoomImagem(produto, url) {
+        if (!url) {
+            return;
+        }
+
+        const modal = criarElemento("div", "produto-zoom");
+        const fundo = criarElemento(
+            "button",
+            "produto-zoom__fundo"
+        );
+        const janela = criarElemento(
+            "section",
+            "produto-zoom__janela"
+        );
+        const cabecalho = criarElemento(
+            "div",
+            "produto-zoom__cabecalho"
+        );
+        const titulo = criarElemento(
+            "h2",
+            "",
+            `Detalhes de ${produto.nome}`
+        );
+        const controles = criarElemento(
+            "div",
+            "produto-zoom__controles"
+        );
+        const diminuir = criarElemento(
+            "button",
+            "produto-zoom__controle",
+            "−"
+        );
+        const nivel = criarElemento(
+            "button",
+            "produto-zoom__nivel",
+            "100%"
+        );
+        const aumentar = criarElemento(
+            "button",
+            "produto-zoom__controle",
+            "+"
+        );
+        const fecharBotao = criarElemento(
+            "button",
+            "produto-zoom__fechar",
+            "×"
+        );
+        const palco = criarElemento(
+            "div",
+            "produto-zoom__palco"
+        );
+        const tela = criarElemento(
+            "div",
+            "produto-zoom__tela"
+        );
+        const imagem = document.createElement("img");
+        let escala = 1;
+
+        fundo.type = "button";
+        fundo.setAttribute("aria-label", "Fechar ampliação");
+        diminuir.type = "button";
+        diminuir.setAttribute("aria-label", "Diminuir zoom");
+        nivel.type = "button";
+        nivel.setAttribute("aria-label", "Restaurar zoom");
+        aumentar.type = "button";
+        aumentar.setAttribute("aria-label", "Aumentar zoom");
+        fecharBotao.type = "button";
+        fecharBotao.setAttribute("aria-label", "Fechar ampliação");
+        janela.setAttribute("role", "dialog");
+        janela.setAttribute("aria-modal", "true");
+        janela.setAttribute("aria-label", `Imagem ampliada de ${produto.nome}`);
+        palco.tabIndex = 0;
+        imagem.src = url;
+        imagem.alt = `Imagem ampliada de ${produto.nome}`;
+        imagem.draggable = false;
+
+        function aplicarEscala(centralizar = true) {
+            tela.style.width = `${escala * 100}%`;
+            tela.style.height = `${escala * 100}%`;
+            nivel.textContent = `${Math.round(escala * 100)}%`;
+            diminuir.disabled = escala <= 1;
+            aumentar.disabled = escala >= 4;
+
+            if (centralizar) {
+                window.requestAnimationFrame(() => {
+                    palco.scrollLeft =
+                        (palco.scrollWidth - palco.clientWidth) / 2;
+                    palco.scrollTop =
+                        (palco.scrollHeight - palco.clientHeight) / 2;
+                });
+            }
+        }
+
+        function alterarEscala(diferenca) {
+            escala = Math.min(
+                4,
+                Math.max(1, escala + diferenca)
+            );
+            aplicarEscala();
+        }
+
+        function fechar() {
+            modal.remove();
+        }
+
+        diminuir.addEventListener("click", () => {
+            alterarEscala(-0.5);
+        });
+        aumentar.addEventListener("click", () => {
+            alterarEscala(0.5);
+        });
+        nivel.addEventListener("click", () => {
+            escala = 1;
+            aplicarEscala();
+        });
+        palco.addEventListener("wheel", (evento) => {
+            evento.preventDefault();
+            alterarEscala(evento.deltaY < 0 ? 0.25 : -0.25);
+        }, { passive: false });
+        imagem.addEventListener("dblclick", () => {
+            escala = escala === 1 ? 2.5 : 1;
+            aplicarEscala();
+        });
+        fundo.addEventListener("click", fechar);
+        fecharBotao.addEventListener("click", fechar);
+        modal.addEventListener("keydown", (evento) => {
+            if (evento.key === "Escape") {
+                fechar();
+            } else if (evento.key === "+" || evento.key === "=") {
+                alterarEscala(0.5);
+            } else if (evento.key === "-") {
+                alterarEscala(-0.5);
+            } else if (evento.key === "0") {
+                escala = 1;
+                aplicarEscala();
+            }
+        });
+
+        controles.append(diminuir, nivel, aumentar);
+        cabecalho.append(titulo, controles, fecharBotao);
+        tela.append(imagem);
+        palco.append(tela);
+        janela.append(cabecalho, palco);
+        modal.append(fundo, janela);
+        document.body.append(modal);
+        aplicarEscala(false);
+        fecharBotao.focus();
     }
 
     function abrirSeletorProduto(produto) {
@@ -179,10 +390,12 @@
             "produto-seletor-modal__conteudo"
         );
         const categoria = criarElemento(
-            "p",
-            "produto-categoria",
-            produto.categoria
-        );
+    "p",
+    "produto-categoria",
+    obterNomeCategoriaExibicao(
+        produto.categoria
+    )
+);
         const titulo = criarElemento("h2", "", produto.nome);
         const descricao = criarElemento(
             "p",
@@ -234,6 +447,34 @@
         imagem.area.classList.add(
             "produto-seletor-modal__imagem"
         );
+        imagem.elemento.classList.add(
+            "produto-seletor-modal__imagem-clicavel"
+        );
+        imagem.elemento.tabIndex = 0;
+        imagem.elemento.setAttribute("role", "button");
+        imagem.elemento.setAttribute(
+            "aria-label",
+            `Ampliar imagem de ${produto.nome}`
+        );
+        const ampliarImagem = criarElemento(
+            "button",
+            "produto-imagem-ampliar",
+            "Ampliar imagem"
+        );
+        ampliarImagem.type = "button";
+        ampliarImagem.addEventListener("click", () => {
+            abrirZoomImagem(produto, imagem.obterUrl());
+        });
+        imagem.elemento.addEventListener("click", () => {
+            abrirZoomImagem(produto, imagem.obterUrl());
+        });
+        imagem.elemento.addEventListener("keydown", (evento) => {
+            if (evento.key === "Enter" || evento.key === " ") {
+                evento.preventDefault();
+                abrirZoomImagem(produto, imagem.obterUrl());
+            }
+        });
+        imagem.area.append(ampliarImagem);
 
         const cores = [...new Set(
             variantes.map((variante) => variante.cor)
@@ -262,6 +503,10 @@
                 ? "Adicionar ao carrinho"
                 : "Opção esgotada";
             imagem.atualizarImagem(varianteAtual?.imagemUrl);
+            ampliarImagem.hidden = !varianteAtual?.imagemUrl;
+            imagem.elemento.tabIndex = varianteAtual?.imagemUrl
+                ? 0
+                : -1;
             mensagem.textContent = "";
         }
 
@@ -426,10 +671,12 @@
         const imagem = criarImagem(produto, varianteAtual);
         const conteudo = criarElemento("div", "produto-info");
         const categoria = criarElemento(
-            "p",
-            "produto-categoria",
-            produto.categoria
-        );
+    "p",
+    "produto-categoria",
+    obterNomeCategoriaExibicao(
+        produto.categoria
+    )
+);
         const titulo = criarElemento("h2", "", produto.nome);
         const descricao = criarElemento(
             "p",
@@ -521,19 +768,28 @@
         try {
             const produtos = await buscarProdutos();
 
+                const produtosExibidos = (
+                    Number.isInteger(limiteProdutos) &&
+                    limiteProdutos > 0
+                )
+                    ? produtos.slice(0, limiteProdutos)
+                    : produtos;
+
             if (produtos.length === 0) {
                 grade.replaceChildren(
                     criarElemento(
                         "div",
                         "produtos-estado",
-                        "Nenhum produto está disponível no momento."
+                        categoriaAtual
+                        ? `Ainda não existem produtos em ${categoriaAtual.nome}.`
+                        : "Nenhum produto está disponível no momento."
                     )
                 );
                 return;
             }
 
-            grade.replaceChildren(
-                ...produtos.map(criarCard)
+                    grade.replaceChildren(
+            ...produtosExibidos.map(criarCard)
             );
             estado.ultimaAtualizacao = Date.now();
         } catch (erro) {
@@ -545,14 +801,46 @@
         }
     }
 
-    const introducao = document.querySelector(
-        ".pagina-produtos .container > p"
-    );
+    const paginaProdutos = document.querySelector(
+    ".pagina-produtos"
+);
 
-    if (introducao) {
-        introducao.textContent =
-            "Escolha seu produto e a variação desejada. Preços e estoque são atualizados diretamente pelo painel da VYA.";
+const tituloPagina = paginaProdutos?.querySelector(
+    "h1"
+);
+
+const introducao = paginaProdutos?.querySelector(
+    ".container > p"
+);
+
+if (paginaProdutos) {
+    if (categoriaAtual) {
+        if (tituloPagina) {
+            tituloPagina.textContent =
+                categoriaAtual.titulo;
+        }
+
+        if (introducao) {
+            introducao.textContent =
+                `Confira os produtos disponíveis em ${categoriaAtual.nome}.`;
+        }
+
+        document.title =
+            `${categoriaAtual.nome} | Vya`;
+    } else {
+        if (tituloPagina) {
+            tituloPagina.textContent =
+                "Produtos Vya";
+        }
+
+        if (introducao) {
+            introducao.textContent =
+                "Escolha seu produto e a variação desejada. Preços e estoque são atualizados diretamente pelo painel da VYA.";
+        }
+
+        document.title = "Produtos | Vya";
     }
+}
 
     canalCatalogo?.addEventListener("message", (evento) => {
         if (evento.data?.tipo === "catalogo-atualizado") {

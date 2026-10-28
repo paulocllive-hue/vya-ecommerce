@@ -1,3 +1,5 @@
+import { obterConfiguracaoPagamento } from "../payments/payments.config.js";
+
 import { AppError } from "../../errors/app-error.js";
 
 import {
@@ -44,11 +46,12 @@ export async function consultarOpcoesCheckout(
         success: true,
         message: "Opções do checkout consultadas.",
         data: {
+            pagamento: obterConfiguracaoPagamento(),
             retiradaDisponivel: true,
             entregaPropriaDisponivel:
                 integracaoEntregaDisponivel(),
             prazoRetirada:
-                "Após a confirmação do pedido",
+                "Após a confirmação do pagamento e aviso de disponibilidade",
             enderecos
         }
     });

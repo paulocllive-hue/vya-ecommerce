@@ -2,8 +2,17 @@ import { pool } from "../../config/database.js";
 
 
 export async function listarProdutosPublicos(
+    categoria = null,
     executor = pool
 ) {
+    const filtroCategoria = categoria
+        ? "AND p.categoria = ?"
+        : "";
+
+    const parametros = categoria
+        ? [categoria]
+        : [];
+
     const [linhas] = await executor.execute(
         `
             SELECT
@@ -23,12 +32,14 @@ export async function listarProdutosPublicos(
                 ON pv.produto_id = p.id
             WHERE p.ativo = 1
               AND pv.ativo = 1
+              ${filtroCategoria}
             ORDER BY
                 p.nome ASC,
                 pv.preco ASC,
                 pv.tamanho ASC,
                 pv.cor ASC
-        `
+        `,
+        parametros
     );
 
     return linhas;

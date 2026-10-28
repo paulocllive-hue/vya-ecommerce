@@ -265,7 +265,7 @@
         elementos.tituloVariante.textContent = "Nova variação";
         elementos.nomeProdutoVariante.textContent = produto.nome;
         campo("#variante-imagem-ajuda").textContent =
-            "Selecione uma imagem JPG, PNG ou WebP de até 5 MB.";
+            "WebP ou JPG, 1600 × 2000 px e proporção 4:5. Ideal: 500 KB a 1,5 MB; máximo: 5 MB.";
         elementos.mensagemVariante.textContent = "";
         abrirModal(elementos.modalVariante);
         campo("#variante-tamanho").focus();
@@ -295,7 +295,7 @@
         campo("#variante-imagem-ajuda").textContent =
             variante.imagemUrl
                 ? "Uma imagem já está cadastrada. Escolha outro arquivo somente para substituí-la."
-                : "Nenhuma imagem cadastrada. Selecione uma imagem JPG, PNG ou WebP de até 5 MB.";
+                : "Nenhuma imagem cadastrada. Use WebP ou JPG, 1600 × 2000 px e proporção 4:5. Ideal: 500 KB a 1,5 MB; máximo: 5 MB.";
         elementos.tituloVariante.textContent = "Editar variação";
         elementos.nomeProdutoVariante.textContent = produto.nome;
         elementos.mensagemVariante.textContent = "";

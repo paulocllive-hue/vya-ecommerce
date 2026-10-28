@@ -12,13 +12,20 @@
         }
     );
 
-    const dataHora = new Intl.DateTimeFormat(
-        "pt-BR",
-        {
-            dateStyle: "long",
-            timeStyle: "short"
-        }
-    );
+    const FUSO_LOJA = "America/Cuiaba";
+    const fusoNavegador = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const opcoesDataHora = {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hourCycle: "h23", timeZoneName: "longOffset"
+    };
+    const dataHora = new Intl.DateTimeFormat("pt-BR", {
+        ...opcoesDataHora, timeZone: FUSO_LOJA
+    });
+    const dataHoraLocal = fusoNavegador !== FUSO_LOJA
+        ? new Intl.DateTimeFormat("pt-BR", {
+            ...opcoesDataHora, timeZone: fusoNavegador
+        }) : null;
 
     const ROTULOS_STATUS = {
         aguardando_pagamento: "Aguardando pagamento",
@@ -28,6 +35,10 @@
         enviado: "Enviado",
         concluido: "Concluído",
         cancelado: "Cancelado",
+        pix: "Pix",
+        cartao_credito: "Cartão de crédito",
+        cartao_debito: "Cartão de débito",
+        boleto: "Boleto",
         pendente: "Pendente",
         aprovado: "Aprovado",
         recusado: "Recusado",
@@ -126,17 +137,14 @@
     }
 
     function formatarData(valor) {
-        if (!valor) {
-            return "Data não informada";
-        }
-
+        if (!valor) return "Data não informada";
         const data = new Date(valor);
-
-        if (Number.isNaN(data.getTime())) {
-            return String(valor);
-        }
-
-        return dataHora.format(data);
+        if (Number.isNaN(data.getTime())) return "Data não informada";
+        const horarioLoja = dataHora.format(data) + " (" + FUSO_LOJA + ")";
+        return dataHoraLocal
+            ? horarioLoja + " • Seu horário: " + dataHoraLocal.format(data) +
+                " (" + fusoNavegador + ")"
+            : horarioLoja;
     }
 
     async function chamarApi(caminho = "") {
@@ -322,7 +330,7 @@
         const data = document.createElement("p");
         data.className = "pedido-cartao__data";
         data.textContent =
-            `Realizado em ${formatarData(pedido.criadoEm)}`;
+            `Pedido criado em ${formatarData(pedido.criadoEm)}`;
 
         identificacao.append(numero, data);
 
@@ -350,7 +358,7 @@
 
         const pagamento = criarInformacao(
             "Pagamento",
-            rotulo(pedido.statusPagamento)
+            `${rotulo(pedido.statusPagamento)} • Preferência: ${rotulo(pedido.metodoPagamento)}`
         );
 
         const recebimento = criarInformacao(

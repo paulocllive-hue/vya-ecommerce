@@ -493,7 +493,8 @@ export async function finalizarPedido(
     usuario,
     {
         metodoEntrega,
-        enderecoId
+        enderecoId,
+        metodoPagamento
     }
 ) {
     const conexao = await pool.getConnection();
@@ -575,6 +576,7 @@ export async function finalizarPedido(
                 enderecoId:
                     entrega.enderecoId,
                 metodoEntrega,
+                metodoPagamento,
                 destinatario:
                     entrega.destinatario ??
                     usuario.nome,

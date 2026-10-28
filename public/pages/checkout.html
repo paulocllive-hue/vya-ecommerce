@@ -405,6 +405,18 @@
                     </form>
                 </section>
 
+                <section class="checkout-cartao" aria-labelledby="pagamento-titulo">
+                    <div class="checkout-cartao__cabecalho">
+                        <div>
+                            <h2 id="pagamento-titulo">Como você prefere pagar?</h2>
+                            <p id="checkout-pagamento-aviso"></p>
+                        </div>
+                    </div>
+                    <div class="checkout-opcoes" id="checkout-metodos-pagamento"
+                         role="radiogroup" aria-labelledby="pagamento-titulo"
+                         aria-describedby="checkout-pagamento-aviso"></div>
+                </section>
+
                 <section class="checkout-cartao checkout-informacao">
                     <div class="checkout-informacao__icone" aria-hidden="true">
                         ✓
@@ -458,7 +470,7 @@
                 </button>
 
                 <p class="checkout-resumo__observacao">
-                    O pagamento online será integrado em uma próxima etapa.
+                    A preferência será salva no pedido. Nenhuma cobrança será realizada nesta etapa.
                 </p>
 
                 <a class="checkout-voltar" href="produtos.html">
@@ -474,12 +486,16 @@
         >
             <div class="checkout-sucesso__icone" aria-hidden="true">✓</div>
             <span class="destaque">Pedido recebido</span>
-            <h1>Seu pedido foi criado com sucesso!</h1>
+            <h1>Pedido criado — pagamento pendente</h1>
             <p>
                 Número do pedido:
                 <strong id="checkout-numero-pedido"></strong>
             </p>
             <p id="checkout-sucesso-detalhes"></p>
+            <p id="checkout-sucesso-pagamento" role="status"></p>
+            <a class="checkout-botao checkout-botao--secundario" href="pedidos.html">
+                Acompanhar meus pedidos
+            </a>
             <a
                 class="checkout-botao checkout-botao--principal"
                 href="produtos.html"

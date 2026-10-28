@@ -7,7 +7,11 @@ export async function listarProdutos(
     requisicao,
     resposta
 ) {
-    const produtos = await obterProdutosPublicos();
+    const categoria = requisicao.query.categoria;
+
+    const produtos = await obterProdutosPublicos(
+        categoria
+    );
 
     return resposta.status(200).json({
         success: true,

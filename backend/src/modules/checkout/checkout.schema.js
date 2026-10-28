@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { METODOS_PAGAMENTO } from "../payments/payments.config.js";
 
 
 const identificadorUuidSchema = z
@@ -133,6 +134,9 @@ const enderecoSchema = z.strictObject({
 
 const finalizarCheckoutSchema = z
     .strictObject({
+        metodoPagamento: z.enum(METODOS_PAGAMENTO, {
+            error: "Escolha uma preferência de pagamento válida."
+        }),
         metodoEntrega: z.enum(
             [
                 "retirada",
