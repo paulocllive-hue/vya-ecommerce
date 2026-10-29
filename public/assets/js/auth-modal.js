@@ -668,7 +668,7 @@ async function processarCredencialGoogle(
         );
 
         window.setTimeout(() => {
-            fecharModal();
+            concluirLoginComDestino();
         }, 900);
     } catch (erro) {
         mostrarMensagem(
@@ -922,6 +922,7 @@ async function inicializarLoginGoogle() {
 
 
     function fecharModal() {
+        continuarParaCarrinho = false;
         modal.hidden = true;
         modal.setAttribute(
             "aria-hidden",
@@ -985,7 +986,7 @@ async function inicializarLoginGoogle() {
             }
 
             window.setTimeout(() => {
-                if (usuarioAtual) {
+                if (usuarioAtual || !modal.hidden) {
                     return;
                 }
 
@@ -1033,7 +1034,7 @@ async function inicializarLoginGoogle() {
             "click",
             (evento) => {
                 evento.preventDefault();
-                abrirModal("login");
+                abrirContaCompartilhada("login");
             }
         );
     }
@@ -1097,7 +1098,7 @@ async function inicializarLoginGoogle() {
                 );
 
                 window.setTimeout(() => {
-                    fecharModal();
+                    concluirLoginComDestino();
                 }, 900);
             } catch (erro) {
                 mostrarMensagem(
@@ -1345,6 +1346,63 @@ async function inicializarLoginGoogle() {
     }
 
 
+    // Mesma autenticação para cabeçalho, rodapé e carrinho.
+    let continuarParaCarrinho = false;
+
+    function concluirLoginComDestino() {
+        const abrirCarrinhoDepois = continuarParaCarrinho;
+        fecharModal();
+        if (abrirCarrinhoDepois && usuarioAtual) {
+            window.InterfaceCarrinhoVya?.abrir();
+        }
+    }
+
+    async function abrirContaCompartilhada(aba = "login") {
+        await sessaoInicial;
+        continuarParaCarrinho = false;
+        abrirModal(aba === "cadastro" ? "cadastro" : "login");
+    }
+
+    async function exigirLoginParaCarrinho() {
+        await sessaoInicial;
+        if (usuarioAtual) {
+            if (!modal.hidden) fecharModal();
+            return true;
+        }
+        continuarParaCarrinho = true;
+        abrirModal("login");
+        mostrarMensagem(mensagemLogin, "Entre na sua conta para acessar o carrinho.");
+        return false;
+    }
+
+    window.AuthVya = {
+        abrir: abrirContaCompartilhada,
+        exigirLoginParaCarrinho,
+        sessaoExpirada() {
+            usuarioAtual = null;
+            atualizarCabecalho();
+            continuarParaCarrinho = true;
+            abrirModal("login");
+            mostrarMensagem(mensagemLogin, "Sua sessão expirou. Entre novamente para acessar o carrinho.");
+        }
+    };
+
+    document.addEventListener("click", (evento) => {
+        const link = evento.target.closest?.("a[href]");
+        if (!link || (!link.closest(".rodape") && link.id !== "auth-link-carrinho")) return;
+        const url = new URL(link.href, window.location.href);
+        if (url.origin !== window.location.origin) return;
+        const pagina = url.pathname.split("/").pop();
+        if (pagina === "login.html" || pagina === "cadastro.html") {
+            evento.preventDefault();
+            abrirContaCompartilhada(pagina === "cadastro.html" ? "cadastro" : "login");
+        } else if (pagina === "carrinho.html" && window.InterfaceCarrinhoVya) {
+            evento.preventDefault();
+            window.InterfaceCarrinhoVya.abrir();
+        }
+    });
+
+
     inicializarLoginGoogle();
-verificarSessao();
+    const sessaoInicial = verificarSessao();
 })();

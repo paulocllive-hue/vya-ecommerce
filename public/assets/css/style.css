@@ -694,7 +694,137 @@ body.auth-modal-aberto {
 /* =========================
    8. SOBRE E RODAPÉ
 ========================= */
+/* =========================
+   SOBRE A VYA
+========================= */
 
+#sobre {
+    /* Ajuste a identidade visual aqui */
+    --sobre-azul-escuro: #062a4a;
+    --sobre-azul-claro: #125780;
+    --sobre-verde: #a8c9b0;
+    --sobre-texto: #455a64;
+    --sobre-fundo: #f3f7f5;
+    --sobre-borda: #d6e3dd;
+
+    background: var(--sobre-fundo);
+    padding: clamp(48px, 7vw, 96px) 0;
+    scroll-margin-top: 100px;
+}
+
+/* Títulos à esquerda e textos à direita */
+#sobre .sobre {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+    column-gap: clamp(24px, 5vw, 72px);
+    row-gap: 36px;
+    align-items: start;
+}
+
+/* Apresentação da marca */
+#sobre .sobre > div:first-child {
+    grid-column: 1 / -1;
+
+    background: linear-gradient(
+        120deg,
+        var(--sobre-azul-escuro),
+        var(--sobre-azul-claro)
+    );
+
+    border-radius: 24px;
+    padding: clamp(28px, 5vw, 60px);
+    margin-bottom: 12px;
+
+    box-shadow: 0 16px 40px rgb(6 42 74 / 10%);
+}
+
+#sobre .destaque {
+    display: block;
+    color: var(--sobre-verde);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+#sobre h2 {
+    color: #ffffff;
+    font-size: clamp(1.9rem, 4vw, 3.3rem);
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+    max-width: 23ch;
+    margin: 0;
+    text-wrap: balance;
+}
+
+/* Títulos dos assuntos */
+#sobre .sobre > h3 {
+    color: var(--sobre-azul-escuro);
+    font-size: clamp(1.2rem, 2vw, 1.55rem);
+    line-height: 1.4;
+    font-weight: 700;
+
+    border-top: 1px solid var(--sobre-borda);
+    padding-top: 24px;
+    margin: 0;
+    text-wrap: balance;
+}
+
+/* Textos com largura e espaçamento confortáveis */
+#sobre .sobre > p {
+    color: var(--sobre-texto);
+    font-size: clamp(1rem, 1.2vw, 1.08rem);
+    line-height: 1.85;
+    text-align: left;
+
+    border-top: 1px solid var(--sobre-borda);
+    padding-top: 24px;
+    margin: 0;
+}
+
+/* Frase de encerramento */
+#sobre .sobre > h3:last-child {
+    grid-column: 1 / -1;
+
+    background: #e4efe8;
+    border: 0;
+    border-left: 4px solid #087c70;
+    border-radius: 0 16px 16px 0;
+
+    padding: clamp(24px, 4vw, 40px);
+    margin-top: 12px;
+
+    font-size: clamp(1.25rem, 2.5vw, 1.8rem);
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Celulares e tablets menores */
+@media (max-width: 760px) {
+    #sobre .sobre {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 16px;
+    }
+
+    #sobre .sobre > div:first-child {
+        border-radius: 18px;
+        margin-bottom: 12px;
+    }
+
+    #sobre .sobre > h3 {
+        margin-top: 16px;
+    }
+
+    #sobre .sobre > p {
+        border-top: 0;
+        padding-top: 0;
+    }
+
+    #sobre .sobre > h3:last-child {
+        margin-top: 20px;
+    }
+}
 /*
     ========================================
     RODAPÉ

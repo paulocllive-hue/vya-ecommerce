@@ -1,0 +1,11 @@
+
+
+# BEGIN VYA CACHE
+# HTML, CSS e JavaScript podem ser armazenados, mas precisam ser
+# revalidados com o servidor antes de reutilizar a cÃ³pia em cache.
+# A configuraÃ§Ã£o se aplica tambÃ©m Ã s subpastas de public.
+<FilesMatch "(?i)\.(html?|css|m?js)$">
+    Header onsuccess unset Cache-Control
+    Header always set Cache-Control "no-cache"
+</FilesMatch>
+# END VYA CACHE

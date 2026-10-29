@@ -464,9 +464,9 @@
             renderizarCarrinho(obterCarrinho(resultado));
         } catch (erro) {
             if (erro.status === 401) {
-                fecharCarrinho();
+                fecharCarrinho(false);
                 window.CarrinhoVya?.zerarContador?.();
-                document.querySelector("#botao-conta")?.click();
+                window.AuthVya?.sessaoExpirada();
                 return;
             }
 
@@ -551,8 +551,14 @@
         }
     }
 
-    function abrirCarrinho(evento) {
+    async function abrirCarrinho(evento) {
         evento?.preventDefault();
+        // Falha fechada: nunca abre o painel sem a camada de autenticação.
+        if (!window.AuthVya) {
+            document.querySelector("#botao-conta")?.click();
+            return;
+        }
+        if (!(await window.AuthVya.exigirLoginParaCarrinho())) return;
 
         if (!interfaceCarrinho) {
             criarInterface();
@@ -574,7 +580,7 @@
         carregarCarrinho();
     }
 
-    function fecharCarrinho() {
+    function fecharCarrinho(restaurarFoco = true) {
         if (!interfaceCarrinho || interfaceCarrinho.hidden) {
             return;
         }
@@ -586,7 +592,7 @@
 
         window.setTimeout(() => {
             interfaceCarrinho.hidden = true;
-            elementoFocadoAntesDeAbrir?.focus?.();
+            if (restaurarFoco) elementoFocadoAntesDeAbrir?.focus?.();
         }, 260);
     }
 
