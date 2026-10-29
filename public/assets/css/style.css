@@ -68,6 +68,7 @@ button {
     font-weight: 700;
     padding: 9px 16px;
     white-space: nowrap;
+    
 }
 
 .conta-link:hover,
@@ -342,16 +343,11 @@ body.auth-modal-aberto {
 }
 
 .menu a {
-    /*align-items: center;
 
-    font-weight: 700;
-    transition: color 0.2s ease;
-    text-decoration: none;
-
-    margin-left: auto;*/
     color: var(--cor-secundaria);
 
     font-weight: 700;
+    
     transition: color 0.2s ease;
 }
 

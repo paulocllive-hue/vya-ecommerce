@@ -1,3 +1,5 @@
+import { exclusaoTestesDisponivel } from "./admin-order-delete.service.js";
+
 import { AppError } from "../../errors/app-error.js";
 
 import {
@@ -32,7 +34,8 @@ export async function listarPedidos(
         success: true,
         message: "Pedidos administrativos consultados.",
         data: {
-            pedidos
+            pedidos,
+            exclusaoTestesDisponivel: exclusaoTestesDisponivel()
         }
     });
 }

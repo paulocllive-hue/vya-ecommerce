@@ -460,3 +460,18 @@
         width: 100%;
     }
 }
+
+
+.admin-exclusao-dialog {
+    border: 0; border-radius: 18px; padding: 28px;
+    width: min(520px, calc(100vw - 32px)); max-height: 90vh;
+    box-sizing: border-box; color: #263c4c; background: white;
+    box-shadow: 0 24px 80px #062a4a40; margin: auto; overflow-y: auto;
+}
+.admin-exclusao-dialog::backdrop { background: #062a4aa6; }
+.admin-exclusao-dialog h2 { color: #062a4a; margin: 0 0 16px; font-size: 1.35rem; }
+.admin-exclusao-dialog p { margin: 12px 0; line-height: 1.6; }
+.admin-exclusao-dialog .admin-exclusao-aviso { padding: 14px; background: #fff4e5; border-radius: 10px; }
+.admin-exclusao-dialog .admin-exclusao-erro { color: #ac1437; }
+.admin-exclusao-dialog .admin-acoes { justify-content: flex-end; }
+.admin-exclusao-dialog button:focus-visible { outline: 3px solid #008c80; outline-offset: 3px; }

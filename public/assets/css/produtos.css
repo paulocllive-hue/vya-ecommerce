@@ -41,6 +41,20 @@ select {
     font: inherit;
 }
 
+.conteudo{
+    text-align: center;
+
+    background: linear-gradient(
+
+        #062a4a 0%,
+        #125780 55%,
+        #287eaa 100%
+    );
+    color: #ffffff;
+    padding: 46px 0;
+}
+
+
 .botao {
     background-color: #a8c9b0;
     border: 0;

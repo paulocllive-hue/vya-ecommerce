@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { excluirTeste } from "./admin-order-delete.controller.js";
 
 import {
     exigirAutenticacao
@@ -41,5 +42,7 @@ adminOrdersRoutes.patch(
     atualizarPedido
 );
 
+
+adminOrdersRoutes.delete("/:pedidoId", excluirTeste);
 
 export default adminOrdersRoutes;

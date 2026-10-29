@@ -93,6 +93,8 @@
 
     const estado = {
         pedidos: [],
+        pedidosExcluidos: new Set(),
+        exclusaoTestesDisponivel: false,
         carregando: false
     };
 
@@ -310,6 +312,81 @@
         }
     }
 
+    function abrirExclusaoTeste(pedido, acionador) {
+        if (document.querySelector("#admin-exclusao-dialog")) return;
+        const dialog = document.createElement("dialog");
+        dialog.id = "admin-exclusao-dialog";
+        dialog.className = "admin-exclusao-dialog";
+        dialog.setAttribute("aria-labelledby", "admin-exclusao-titulo");
+        dialog.setAttribute("aria-describedby", "admin-exclusao-aviso");
+        const titulo = document.createElement("h2");
+        titulo.id = "admin-exclusao-titulo";
+        titulo.textContent = `Excluir pedido de teste #${pedido.numeroPedido}?`;
+        const aviso = document.createElement("p");
+        aviso.id = "admin-exclusao-aviso";
+        aviso.className = "admin-exclusao-aviso";
+        aviso.textContent = "Esta função deve ser utilizada exclusivamente pela administração para excluir pedidos criados em testes. Registros de vendas reais devem ser mantidos, mesmo quando cancelados. A exclusão é permanente e não pode ser desfeita.";
+        const estoque = document.createElement("p");
+        estoque.textContent = pedido.status === "cancelado"
+            ? "O pedido já foi cancelado. O estoque não será devolvido novamente."
+            : "As quantidades deste pedido de teste serão devolvidas ao estoque.";
+        const declaracao = document.createElement("p");
+        declaracao.textContent = "Ao confirmar, você declara que este pedido é apenas um teste e não corresponde a uma venda real.";
+        const erro = document.createElement("p");
+        erro.className = "admin-exclusao-erro";
+        erro.setAttribute("role", "alert");
+        const acoes = document.createElement("div");
+        acoes.className = "admin-acoes";
+        const cancelar = document.createElement("button");
+        cancelar.type = "button";
+        cancelar.className = "admin-botao admin-botao--secundario";
+        cancelar.textContent = "Cancelar";
+        cancelar.autofocus = true;
+        const confirmar = document.createElement("button");
+        confirmar.type = "button";
+        confirmar.className = "admin-botao admin-botao--perigo";
+        confirmar.textContent = "Confirmar exclusão de teste";
+        let enviando = false;
+        cancelar.addEventListener("click", () => dialog.close());
+        dialog.addEventListener("cancel", (evento) => { if (enviando) evento.preventDefault(); });
+        dialog.addEventListener("close", () => {
+            dialog.remove();
+            if (acionador.isConnected) acionador.focus();
+            else elementos.atualizar.focus();
+        });
+        confirmar.addEventListener("click", async () => {
+            if (enviando) return;
+            enviando = true;
+            cancelar.disabled = confirmar.disabled = true;
+            confirmar.textContent = "Excluindo...";
+            erro.textContent = "";
+            try {
+                await chamarApi(`/${encodeURIComponent(pedido.id)}`, {
+                    method: "DELETE",
+                    body: JSON.stringify({ confirmarPedidoTeste: true, numeroPedido: pedido.numeroPedido })
+                });
+                estado.pedidosExcluidos.add(pedido.id);
+                estado.pedidos = estado.pedidos.filter((item) => item.id !== pedido.id);
+                atualizarIndicadores();
+                renderizarPedidos();
+                elementos.retorno.textContent = `Pedido de teste #${pedido.numeroPedido} excluído.`;
+                elementos.retorno.dataset.tipo = "sucesso";
+                dialog.close();
+            } catch (falha) {
+                erro.textContent = falha.message;
+                cancelar.disabled = confirmar.disabled = false;
+                confirmar.textContent = "Confirmar exclusão de teste";
+            } finally {
+                enviando = false;
+            }
+        });
+        acoes.append(cancelar, confirmar);
+        dialog.append(titulo, aviso, estoque, declaracao, erro, acoes);
+        document.body.append(dialog);
+        dialog.showModal();
+        cancelar.focus();
+    }
+
     function preencherDetalhes(
         area,
         pedido
@@ -370,6 +447,14 @@
             acoes.appendChild(finalizado);
         }
 
+        if (estado.exclusaoTestesDisponivel) {
+            const excluir = document.createElement("button");
+            excluir.type = "button";
+            excluir.className = "admin-botao admin-botao--perigo";
+            excluir.textContent = "Excluir pedido de teste";
+            excluir.addEventListener("click", () => abrirExclusaoTeste(pedido, excluir));
+            acoes.appendChild(excluir);
+        }
         area.append(grade, tituloItens, itens, acoes);
         area.dataset.carregado = "true";
     }
@@ -572,7 +657,8 @@
 
         try {
             const resultado = await chamarApi();
-            estado.pedidos = resultado.data.pedidos;
+            estado.pedidos = resultado.data.pedidos.filter((pedido) => !estado.pedidosExcluidos.has(pedido.id));
+            estado.exclusaoTestesDisponivel = resultado.data.exclusaoTestesDisponivel === true;
 
             atualizarIndicadores();
             renderizarPedidos();
